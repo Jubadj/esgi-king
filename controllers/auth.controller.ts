@@ -2,13 +2,18 @@ import express, {Request, Response, Router} from "express";
 import {AuthService} from "../services";
 import {checkUserConnected} from "../middlewares";
 
+
+
 export class AuthController {
 
     async createUser(req: Request, res: Response) {
         try {
             const user = await AuthService.getInstance().subscribeUser({
                 login: req.body.login,
-                password: req.body.password
+                password: req.body.password,
+                role: req.body.role,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName
             });
             res.json(user);
         } catch(err) {
@@ -34,6 +39,7 @@ export class AuthController {
     async me(req: Request, res: Response) {
         res.json(req.user);
     }
+
 
     buildRoutes(): Router {
         const router = express.Router();
