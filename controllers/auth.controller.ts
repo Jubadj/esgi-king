@@ -1,6 +1,9 @@
 import express, {Request, Response, Router} from "express";
-import {AuthService} from "../services";
-import {checkUserConnected} from "../middlewares";
+import {AdminService, AuthService} from "../services";
+import {checkUserConnected, ROLE} from "../middlewares";
+import {AdminController} from "./admin.controller";
+
+
 
 export class AuthController {
 
@@ -8,8 +11,16 @@ export class AuthController {
         try {
             const user = await AuthService.getInstance().subscribeUser({
                 login: req.body.login,
-                password: req.body.password
+                password: req.body.password,
+                role: req.body.role,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName
             });
+            if(req.body.role === ROLE.ADMIN){
+                const user = await AdminService.getInstance().createAdmin({
+                    username: req.body.login
+                });
+            }
             res.json(user);
         } catch(err) {
             res.status(400).end();
@@ -34,6 +45,7 @@ export class AuthController {
     async me(req: Request, res: Response) {
         res.json(req.user);
     }
+
 
     buildRoutes(): Router {
         const router = express.Router();

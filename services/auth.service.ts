@@ -22,7 +22,10 @@ export class AuthService {
         }
         const model = new UserModel({
             login: user.login,
-            password: SecurityUtils.sha512(user.password)
+            password: SecurityUtils.sha512(user.password),
+            role: user.role,
+            firstName: user.firstName,
+            lastName: user.lastName
         });
         return model.save();
     }

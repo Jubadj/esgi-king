@@ -8,6 +8,14 @@ declare module 'express' {
     }
 }
 
+export const ROLE = {
+    BIGBOSS: 'BIGBOSS',
+    ADMIN: 'ADMIN',
+    CUSTOMER: 'CUSTOMER',
+    PREPARER: 'PREPARER',
+    DELIVERYMAN: 'DELIVERYMAN'
+}
+
 export function checkUserConnected(): RequestHandler {
     return async function(req: Request,
                     res,
@@ -30,6 +38,31 @@ export function checkUserConnected(): RequestHandler {
         try {
             const user = await AuthService.getInstance().getUserFrom(token);
             if(user === null) {
+                res.status(401).end();
+                return;
+            }
+            req.user = user;
+            next();
+        } catch(err) {
+            res.status(401).end();
+        }
+    }
+}
+
+export function isBigBoss(): RequestHandler {
+    return async function(req: Request,
+                          res,
+                          next){
+        const authorization = req.headers['authorization'];
+        if(authorization === undefined) {
+            res.status(401).end();
+            return;
+        }
+        const parts = authorization.split(" ");
+        const token = parts[1];
+        try {
+            const user = await AuthService.getInstance().getUserFrom(token);
+            if(user === null || user.role !== ROLE.BIGBOSS) {
                 res.status(401).end();
                 return;
             }
