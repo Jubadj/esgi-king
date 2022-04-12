@@ -1,6 +1,7 @@
 import express, {Request, Response, Router} from "express";
-import {AuthService} from "../services";
-import {checkUserConnected} from "../middlewares";
+import {AdminService, AuthService} from "../services";
+import {checkUserConnected, ROLE} from "../middlewares";
+import {AdminController} from "./admin.controller";
 
 
 
@@ -15,6 +16,11 @@ export class AuthController {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName
             });
+            if(req.body.role === ROLE.ADMIN){
+                const user = await AdminService.getInstance().createAdmin({
+                    username: req.body.login
+                });
+            }
             res.json(user);
         } catch(err) {
             res.status(400).end();

@@ -1,54 +1,33 @@
-import {BigBossDocument, BigBossModel, BigBossProps} from "../models";
-
+import {AdminDocument, AdminProps, RestaurantDocument, UserDocument, UserProps} from "../models";
+import {Request, request, Response} from "express";
+import {AdminService} from "./admin.service";
+import {RestaurantService} from "../services";
 
 export class BigBossService {
 
     private static instance?: BigBossService;
 
     public static getInstance(): BigBossService {
-        if(BigBossService.instance === undefined) {
+        if (BigBossService.instance === undefined) {
             BigBossService.instance = new BigBossService();
         }
         return BigBossService.instance;
     }
 
-    private constructor() { }
-
-    public async createBigBoss(props: BigBossProps): Promise<BigBossDocument> {
-        const model = new BigBossModel(props);
-        const bigBoss = await model.save();
-        return bigBoss;
+    private constructor() {
     }
 
-    async getById(bigBossId: string): Promise<BigBossDocument | null> {
-        return BigBossModel.findById(bigBossId).exec();
+    public async affectAdmin(adminId: string, restaurantId: string): Promise<[AdminDocument, RestaurantDocument] | null> {
+        const admin = await AdminService.getInstance().getById(adminId);
+        const restaurant = await RestaurantService.getInstance().getById(restaurantId);
+
+        if(restaurant !== null && admin !== null){
+            restaurant.admin = adminId;
+            admin.restaurant = restaurantId;
+            await restaurant.save();
+            await admin.save();
+            return [admin, restaurant];
+        }
+        return null;
     }
-
-    async deleteById(bigBossId: string): Promise<boolean> {
-        const res = await BigBossModel.deleteOne({_id: bigBossId}).exec();
-        return res.deletedCount === 1;
-    }
-
-    // async updateById(bigBossId: string, props: BigBossProps): Promise<BigBossDocument | null> {
-    //     const bigBoss = await this.getById(bigBossId);
-    //     if(!bigBoss) {
-    //         return null;
-    //     }
-    //     if(props.name !== undefined) {
-    //         bigBoss.name = props.name;
-    //     }
-    //     if(props.price !== undefined) {
-    //         bigBoss.price = props.price;
-    //     }
-    //     if(props.origin !== undefined) {
-    //         bigBoss.origin = props.origin;
-    //     }
-    //     if(props.intensity !== undefined) {
-    //         bigBoss.intensity = props.intensity;
-    //     }
-    //     const res = await bigBoss.save();
-    //     return res;
-    // }
-
-
 }

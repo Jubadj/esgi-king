@@ -1,20 +1,27 @@
-// import express, {Router, Request, Response} from "express";
-// import {BigBossService} from "../services";
-// import {checkUserConnected} from "../middlewares";
-//
-//
-// export class BigBossController {
-//
-//     buildRoutes(): Router {
-//         const router = express.Router();
-//         //router.use();
-//         router.use(checkUserConnected());
-//
-//         router.post('/bigBoss', express.json(), this.createBigBoss.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
-//         router.get('/bigBoss', this.getAllBigBosss.bind(this));
-//         router.get('/bigBoss/:bigBoss_id', this.getBigBoss.bind(this));
-//         // router.delete('/:bigBoss_id', this.deleteBigBoss.bind(this));
-//         // router.put('/:bigBoss_id', express.json(), this.updateBigBoss.bind(this));
-//         return router;
-//     }
-// }
+import {AdminService, AuthService, RestaurantService} from "../services";
+import express, {Request, Response, Router} from "express";
+import {checkUserConnected, ROLE} from "../middlewares";
+import {BigBossService} from "../services/bigBoss.service";
+
+
+export class BigBossController {
+    async affectAdminToRestaurant(req: Request, res: Response) {
+        try {
+            const success = await BigBossService.getInstance().affectAdmin(req.params.admin_id, req.params.restaurant_id);
+            if(success){
+                res.status(204).end();
+            }else{
+                res.status(404).end();
+            }
+        } catch(err) {
+            res.status(400).end();
+        }
+    }
+
+
+    buildRoutes(): Router {
+        const router = express.Router();
+        router.put('/affectation/:admin_id/:restaurant_id', express.json(), this.affectAdminToRestaurant.bind(this));
+        return router;
+    }
+}

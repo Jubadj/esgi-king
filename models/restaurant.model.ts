@@ -1,29 +1,35 @@
 import mongoose, {Schema, Document, Model} from "mongoose";
 import {UserProps} from "./user.model";
+import {AdminController} from "../controllers/admin.controller";
+import {AdminProps} from "./admin.model";
 
 
 const restaurantSchema = new Schema({
 
         name: {
             type: Schema.Types.String,
+            required: true
         },
 
         address: {
             type: Schema.Types.String,
+            required: true
         },
 
         city: {
             type: Schema.Types.String,
+            required: true
         },
 
         postalCode: {
             type: Schema.Types.Number,
-        }
+            required: true
+        },
 
-        // admin: {
-        //     type: Schema.Types.ObjectId,
-        //     ref:"admin"
-        // },
+        admin: {
+            type: Schema.Types.ObjectId,
+            ref:"admin"
+        },
 
 
         //admin
@@ -50,7 +56,8 @@ export interface RestaurantProps {
     address: string;
     city: string;
     postalCode: number;
-    //admin: Admin
+    admin?: string; // admin._id
+
     //preparers: Preparers[];
     //deliveryMen: DeliveryMen[];
 }
