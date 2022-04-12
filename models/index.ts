@@ -1,5 +1,0 @@
-export * from "./product.model"
-export * from "./order.model"
-export * from "./session.model"
-export * from "./setMenu.model"
-export * from "./admin.model"
