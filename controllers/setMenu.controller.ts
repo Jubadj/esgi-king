@@ -1,12 +1,13 @@
 import express, {Router, Request, Response} from "express";
-import {SetMenuService} from "../services";
+import {ProductService, SetMenuService} from "../services";
 import {canSeeProduct, checkUserConnected, isAdmin, isBigBoss} from "../middlewares";
+import {menuEnum, productEnum} from "../enums";
 
 export class SetMenuController {
 
-    async createSetMenu(req: Request, res: Response) {
+    async createNewMenu(req: Request, res: Response) {
         const setMenuBody = req.body;
-        if(!setMenuBody.name || !setMenuBody.product || !setMenuBody.price || !setMenuBody.promo) {
+        if(!setMenuBody.name || !setMenuBody.product || !setMenuBody.price) {
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -14,8 +15,33 @@ export class SetMenuController {
             const setMenu = await SetMenuService.getInstance().createSetMenu({
                 name: setMenuBody.name,
                 product: setMenuBody.product,
-                price: setMenuBody.price,
-                promo: setMenuBody.promo
+                price: setMenuBody.price
+            });
+            res.json(setMenu);
+        } catch(err) {
+            res.status(400).end(); // erreur des données utilisateurs
+            return;
+        }
+    }
+
+    async createSetMenu(req: Request, res: Response) {
+        const menuBody = req.body;
+        const menuName = menuBody.name.toString();
+        // Verify the name is enterred in the request body
+        if(!menuName) {
+            res.status(400).end(); // 400 -> bad request
+            return;
+        }
+        try {
+            // Verify if the menu name exist in the menu enum
+            if(!(menuName in menuEnum)){
+                res.status(400).end(); // 400 -> bad request
+                return;
+            }
+            const setMenu = await SetMenuService.getInstance().createSetMenu({
+                name: menuName,
+                product: menuEnum[menuName as keyof typeof menuEnum].product,
+                price: menuEnum[menuName as keyof typeof menuEnum].price
             });
             res.json(setMenu);
         } catch(err) {
@@ -74,6 +100,7 @@ export class SetMenuController {
         const router = express.Router();
 
         router.use(checkUserConnected());
+        //router.post('/', express.json(), this.createNewSetMenu.bind(this), isBigBoss()); // permet de forcer le this lors de l'appel de la fonction sayHello
         router.post('/', express.json(), this.createSetMenu.bind(this), isAdmin()); // permet de forcer le this lors de l'appel de la fonction sayHello
         router.get('/', this.getAllSetMenus.bind(this), canSeeProduct());
         router.get('/:setMenu_id', this.getSetMenu.bind(this), canSeeProduct());

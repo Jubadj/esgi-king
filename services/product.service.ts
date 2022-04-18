@@ -23,6 +23,10 @@ export class ProductService {
         return ProductModel.findById(productId).exec();
     }
 
+    async getByName(info: Pick<ProductProps, 'name'>): Promise<ProductDocument | null> {
+        return  ProductModel.findOne(info).exec();
+    }
+
     async deleteById(productId: string): Promise<boolean> {
         const res = await ProductModel.deleteOne({_id: productId}).exec();
         return res.deletedCount === 1;
@@ -41,6 +45,9 @@ export class ProductService {
         }
         if(props.calories !== undefined) {
             product.calories = props.calories;
+        }
+        if(props.count !== undefined) {
+            product.count = props.count;
         }
         if(props.type !== undefined) {
             product.type = props.type;
