@@ -1,12 +1,13 @@
 import express, {Router, Request, Response} from "express";
-import {OrderService} from "../services";
+
 import {canAdminPreparer, checkUserConnected, isAdmin, isBigBoss, isCustomer} from "../middlewares";
+import {OrderService} from "../services";
 
 export class OrderController {
 
     async createOrder(req: Request, res: Response) {
         const orderBody = req.body;
-        if(!orderBody.restaurant || !orderBody.customer || !orderBody.productList || !orderBody.date|| !orderBody.price) {
+        if(!orderBody.restaurant || !orderBody.customer) {
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -15,7 +16,7 @@ export class OrderController {
                 restaurant: orderBody.restaurant,
                 customer: orderBody.customer,
                 productList: orderBody.productList,
-                date: orderBody.date,
+                menuList: orderBody.menuList,
                 price: orderBody.price
             });
             res.json(order);
@@ -74,12 +75,11 @@ export class OrderController {
     buildRoutes(): Router {
         const router = express.Router();
 
-        router.use(checkUserConnected());
-        router.post('/', express.json(), this.createOrder.bind(this), isCustomer()); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.get('/', this.getAllOrders.bind(this), canAdminPreparer());
-        router.get('/:order_id', this.getOrder.bind(this), canAdminPreparer())
-        router.delete('/:order_id', this.deleteOrder.bind(this), canAdminPreparer());
-        router.put('/:order_id', express.json(), this.updateOrder.bind(this), canAdminPreparer());
+        router.post('/', express.json(), this.createOrder.bind(this), checkUserConnected(), isCustomer()); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.get('/', this.getAllOrders.bind(this), checkUserConnected(), canAdminPreparer());
+        router.get('/:order_id', this.getOrder.bind(this), checkUserConnected(), canAdminPreparer())
+        router.delete('/:order_id', this.deleteOrder.bind(this), checkUserConnected(), canAdminPreparer());
+        router.put('/:order_id', express.json(), this.updateOrder.bind(this), checkUserConnected(), canAdminPreparer());
         return router;
     }
 }

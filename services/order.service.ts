@@ -39,11 +39,11 @@ export class OrderService {
         if(props.customer !== undefined) {
             order.customer = props.customer;
         }
-        if(props.date !== undefined) {
-            order.date = props.date;
-        }
         if(props.productList !== undefined) {
             order.productList = props.productList;
+        }
+        if(props.menuList !== undefined) {
+            order.menuList = props.menuList;
         }
         if(props.price !== undefined) {
             order.price = props.price;

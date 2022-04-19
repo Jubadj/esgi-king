@@ -12,14 +12,12 @@ const orderSchema = new Schema({
             type: Schema.Types.String,
             required: true
         },
-        productList: [{
-            type: Schema.Types.ObjectId,
-            ref: "product"
+        menuList: [{
+            type: Schema.Types.String
         }],
-        date: {
-            type: Schema.Types.Date,
-            required: true
-        },
+        productList: [{
+            type: Schema.Types.String
+        }],
         price: {
             type: Schema.Types.Number,
             required: true
@@ -34,8 +32,8 @@ const orderSchema = new Schema({
 export interface OrderProps{
     restaurant: string;
     customer: string;
-    date: Date;
-    productList: null | ProductProps[];
+    productList: null | String[];
+    menuList: null | String[];
     price: number;
 }
 

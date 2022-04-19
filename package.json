@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf dist && tsc",
-    "start": "node ./dist/index.js",
-    "heroku": "rq -rf heroku-app/dist && cp dist heroku-app/dist "
+    "build": "rmdir /s /q dist && tsc",
+    "start": "node ./dist/index.js"
   },
   "repository": {
     "type": "git",
