@@ -8,16 +8,12 @@ const setMenuSchema = new Schema({
             required: true
         },
         product: [{
-            type: Schema.Types.ObjectId,
-            required: true,
-            ref: "product"
-        }],
-        price: {
             type: Schema.Types.String,
             required: true
-        },
-        promo: {
-            type: Schema.Types.String
+        }],
+        price: {
+            type: Schema.Types.Number,
+            required: true
         }
     },
     {
@@ -28,9 +24,8 @@ const setMenuSchema = new Schema({
 
 export interface SetMenuProps{
     name: string;
-    product: null | ProductProps[];
+    product: null | string[];
     price: number;
-    promo?: number;
 }
 
 export type SetMenuDocument = SetMenuProps & Document;

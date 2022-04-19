@@ -1,4 +1,13 @@
-import {SetMenuDocument, SetMenuModel, SetMenuProps} from "../models";
+import {
+    ProductDocument, ProductModel,
+    ProductProps,
+    SessionModel,
+    SetMenuDocument,
+    SetMenuModel,
+    SetMenuProps,
+    UserModel
+} from "../models";
+import {SecurityUtils} from "../utils";
 export class SetMenuService {
     private static instance?: SetMenuService;
     public static getInstance(): SetMenuService {
@@ -23,6 +32,10 @@ export class SetMenuService {
         return SetMenuModel.findById(setMenuId).exec();
     }
 
+    async getByName(info: Pick<SetMenuProps, 'name'>): Promise<SetMenuDocument | null> {
+        return  SetMenuModel.findOne(info).exec();
+    }
+
     async deleteById(setMenuId: string): Promise<boolean> {
         const res = await SetMenuModel.deleteOne({_id: setMenuId}).exec();
         return res.deletedCount === 1;
@@ -45,4 +58,25 @@ export class SetMenuService {
         const res = await setMenu.save();
         return res;
     }
+
+    // async addProductToMenu(menu_id: String){
+    //     const menu = await SetMenuModel.findOne({
+    //         login: info.login,
+    //         password: SecurityUtils.sha512(info.password)
+    //     }).exec();
+    //     if(menu === null) {
+    //         throw new Error('Menu not found');
+    //     }
+    //     // 604_800 -> 1 week in seconds
+    //     const currentDate = new Date();
+    //     const expirationDate = new Date(currentDate.getTime() + 604_800_000);
+    //     const session = await SessionModel.create({
+    //         platform,
+    //         expiration: expirationDate,
+    //         user: user._id
+    //     });
+    //     user.sessions.push(session._id); // permet de memoriser la session dans le user
+    //     await user.save();
+    // }
+
 }

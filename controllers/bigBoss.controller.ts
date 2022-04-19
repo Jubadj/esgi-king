@@ -18,6 +18,7 @@ export class BigBossController {
         }
     }
 
+    // TODO function to manage procduct and menu enums creating
 
     buildRoutes(): Router {
         const router = express.Router();

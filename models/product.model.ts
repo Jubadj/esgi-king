@@ -4,7 +4,8 @@ import mongoose, {Schema, Document, Model} from "mongoose";
 const productSchema = new Schema({
         name: {
             type: Schema.Types.String,
-            required: true
+            required: true,
+            unique: true
         },
         weight: {
             type: Schema.Types.Number,
@@ -17,6 +18,10 @@ const productSchema = new Schema({
         // Vegetarian or with meat
         type: {
             type: Schema.Types.String
+        },
+        count: {
+            type: Schema.Types.Number,
+            required: true
         },
         price: {
             type: Schema.Types.Number,
@@ -34,6 +39,7 @@ export interface ProductProps{
     weight: number;
     calories: number;
     type?: string;
+    count: number;
     price: number;
 }
 
