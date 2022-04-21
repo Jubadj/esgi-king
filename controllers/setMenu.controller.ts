@@ -1,7 +1,8 @@
 import express, {Router, Request, Response} from "express";
 import {ProductService, SetMenuService} from "../services";
 import {canSeeProduct, checkUserConnected, isAdmin, isBigBoss} from "../middlewares";
-import {menuEnum, productEnum} from "../enums";
+import {menuEnum} from "../utils";
+
 
 export class SetMenuController {
 

@@ -48,6 +48,9 @@ export class OrderService {
         if(props.price !== undefined) {
             order.price = props.price;
         }
+        if(props.mode !== undefined) {
+            order.mode = props.mode;
+        }
         const res = await order.save();
         return res;
     }

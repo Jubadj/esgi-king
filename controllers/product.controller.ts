@@ -2,7 +2,7 @@ import express, {Router, Request, Response} from "express";
 import {AdminService, ProductService} from "../services";
 import {canSeeProduct, checkUserConnected, isAdmin, isBigBoss} from "../middlewares";
 import {ProductModel, RestaurantModel} from "../models";
-import {productEnum} from "../enums/product.enum";
+import {productEnum} from "../utils/product.enum";
 
 export class ProductController {
 

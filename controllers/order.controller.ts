@@ -1,13 +1,16 @@
-import express, {Router, Request, Response} from "express";
-
-import {canAdminPreparer, checkUserConnected, isAdmin, isBigBoss, isCustomer} from "../middlewares";
-import {OrderService} from "../services";
-
 export class OrderController {
 
     async createOrder(req: Request, res: Response) {
         const orderBody = req.body;
         if(!orderBody.restaurant || !orderBody.customer) {
+            res.status(400).end(); // 400 -> bad request
+            return;
+        }
+
+        const restaurant = RestaurantService.getInstance().getById(orderBody.restaurant);
+        const customer = AuthService.getInstance().getById(orderBody.customer);
+
+        if(restaurant === null || customer === null){
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -17,7 +20,8 @@ export class OrderController {
                 customer: orderBody.customer,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
-                price: orderBody.price
+                price: orderBody.price,
+                mode: orderBody.mode
             });
             res.json(order);
         } catch(err) {
@@ -25,6 +29,66 @@ export class OrderController {
             return;
         }
     }
+
+    async createOrderOnline(req: Request, res: Response) {
+        const orderBody = req.body;
+        //Verify if we have all written attributes in the body
+        if(!orderBody.restaurant) {
+            res.status(400).end(); // 400 -> bad request
+            return;
+        }
+
+        // Veirfy if restaurant exist in DB
+        const restaurant = RestaurantService.getInstance().getById(orderBody.restaurant);
+        if(restaurant === null ){
+            res.status(400).end(); // 400 -> bad request
+            return;
+        }
+
+        // Get the user token
+        const authorization = req.headers['authorization'];
+        if(authorization === undefined) {
+            console.log("test")
+            res.status(401).end();
+            return;
+        }
+        const parts = authorization.split(" ");
+        if(parts.length !== 2) {
+            console.log("test2")
+            res.status(401).end();
+            return;
+        }
+        if(parts[0] !== 'Bearer') {
+            console.log("test3")
+            res.status(401).end();
+            return;
+        }
+        const token = parts[1];
+        try {
+            // Get customer user_id
+            const user = await AuthService.getInstance().getUserFrom(token);
+            if(user === null) {
+                console.log("test4")
+                res.status(401).end();
+                return;
+            }
+            const customer_id = user._id;
+            const order = await OrderService.getInstance().createOrder({
+                restaurant: orderBody.restaurant,
+                customer: customer_id,
+                productList: orderBody.productList,
+                menuList: orderBody.menuList,
+                price: orderBody.price,
+                mode: orderBody.mode
+            });
+            res.json(order);
+        } catch(err) {
+            res.status(400).end(); // erreur des données utilisateurs
+            return;
+        }
+
+    }
+
 
     async getAllOrders(req: Request, res: Response) {
         const orders = await OrderService.getInstance().getAll();
@@ -75,11 +139,20 @@ export class OrderController {
     buildRoutes(): Router {
         const router = express.Router();
 
-        router.post('/', express.json(), this.createOrder.bind(this), checkUserConnected(), isCustomer()); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.get('/', this.getAllOrders.bind(this), checkUserConnected(), canAdminPreparer());
-        router.get('/:order_id', this.getOrder.bind(this), checkUserConnected(), canAdminPreparer())
-        router.delete('/:order_id', this.deleteOrder.bind(this), checkUserConnected(), canAdminPreparer());
-        router.put('/:order_id', express.json(), this.updateOrder.bind(this), checkUserConnected(), canAdminPreparer());
+        // When in restaurant "Sur place"
+        router.post('/', express.json(), isCustomer(), this.createOrder.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        // Online order
+        //router.post('/online', express.json(), checkUserConnected(), isCustomer(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.post('/online', express.json(),  this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.get('/', checkUserConnected(), canSeeProduct(), this.getAllOrders.bind(this));
+        router.get('/:order_id', checkUserConnected(), canSeeProduct(), this.getOrder.bind(this));
+        router.delete('/:order_id', checkUserConnected(), canSeeProduct(), this.deleteOrder.bind(this));
+        router.put('/:order_id', express.json(), checkUserConnected(), canSeeProduct(), this.updateOrder.bind(this));
         return router;
     }
 }
+
+import express, {Router, Request, Response} from "express";
+import {checkUserConnected, canSeeProduct, isAdmin, isBigBoss, isCustomer, isPreparer} from "../middlewares";
+
+import {AuthService, OrderService, RestaurantService} from "../services";

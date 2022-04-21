@@ -21,6 +21,10 @@ const orderSchema = new Schema({
         price: {
             type: Schema.Types.Number,
             required: true
+        },
+        mode: {
+            type: Schema.Types.String,
+            required: true
         }
     },
     {
@@ -35,6 +39,7 @@ export interface OrderProps{
     productList: null | String[];
     menuList: null | String[];
     price: number;
+    mode: string;
 }
 
 export type OrderDocument = OrderProps & Document;
