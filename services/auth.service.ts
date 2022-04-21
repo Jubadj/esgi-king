@@ -52,7 +52,7 @@ export class AuthService {
         return session;
     }
 
-    async getById(userId: string): Promise<UserDocument | null> {
+    public async getById(userId: string): Promise<UserDocument | null> {
         return UserModel.findById(userId).exec();
     }
 
@@ -64,5 +64,15 @@ export class AuthService {
            }
         }).populate("user").exec();
         return session ? session.user as UserProps : null;
+    }
+
+    public async getUserFromToken(token: string): Promise<UserDocument | null> {
+        const session = await SessionModel.findOne({
+           _id: token,
+           expiration: {
+               $gte: new Date()
+           }
+        }).populate("user").exec();
+        return session ? session.user as UserDocument : null;
     }
 }

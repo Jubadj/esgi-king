@@ -7,20 +7,17 @@ export class OrderController {
             return;
         }
 
-        const restaurant = RestaurantService.getInstance().getById(orderBody.restaurant);
-        const customer = AuthService.getInstance().getById(orderBody.customer);
-
-        if(restaurant === null || customer === null){
-            res.status(400).end(); // 400 -> bad request
-            return;
-        }
+        const restaurantObj = await RestaurantService.getInstance().getById(orderBody.restaurant);
+        const customerObj = await AuthService.getInstance().getById(orderBody.customer);
         try {
+            if ( !restaurantObj || !customerObj ){
+                res.status(400).end(); // 400 ->bad request
+            }
             const order = await OrderService.getInstance().createOrder({
-                restaurant: orderBody.restaurant,
-                customer: orderBody.customer,
+                restaurant: restaurantObj,
+                customer: customerObj,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
-                price: orderBody.price,
                 mode: orderBody.mode
             });
             res.json(order);
@@ -38,7 +35,7 @@ export class OrderController {
             return;
         }
 
-        // Veirfy if restaurant exist in DB
+        // Verify if restaurant exist in DB
         const restaurant = RestaurantService.getInstance().getById(orderBody.restaurant);
         if(restaurant === null ){
             res.status(400).end(); // 400 -> bad request
@@ -73,13 +70,15 @@ export class OrderController {
                 return;
             }
             const customer_id = user._id;
+            const restaurantObj = await RestaurantService.getInstance().getById(orderBody.restaurant);
             const order = await OrderService.getInstance().createOrder({
-                restaurant: orderBody.restaurant,
-                customer: customer_id,
+                restaurant: restaurantObj,
+                customer: user,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
                 price: orderBody.price,
-                mode: orderBody.mode
+                mode: orderBody.mode,
+                statusPreparation: orderBody.statusPreparation
             });
             res.json(order);
         } catch(err) {

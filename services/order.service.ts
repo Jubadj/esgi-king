@@ -28,6 +28,16 @@ export class OrderService {
         return res.deletedCount === 1;
     }
 
+    // TODO
+    async calculatePrice(productList: null | String[], menuList: null | String[]){
+        for (let i = 0; i < productList.lenght; i++) {
+            console.log ("Block statement execution no." + i);
+        }
+        for (let i = 0; i < menuList.lenght; i++) {
+            console.log ("Block statement execution no." + i);
+        }
+    }
+
     async updateById(orderId: string, props: OrderProps): Promise<OrderDocument | null> {
         const order = await this.getById(orderId);
         if(!order) {
@@ -50,6 +60,9 @@ export class OrderService {
         }
         if(props.mode !== undefined) {
             order.mode = props.mode;
+        }
+        if(props.statusPreparation !== undefined) {
+            order.statusPreparation = props.statusPreparation;
         }
         const res = await order.save();
         return res;

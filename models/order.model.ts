@@ -1,16 +1,20 @@
 import mongoose, {Schema, Document, Model} from "mongoose";
 import "./product.model"
 import {ProductProps} from "./product.model";
-
+import {UserDocument, UserProps} from "./user.model";
+import {RestaurantDocument, RestaurantProps} from "./restaurant.model";
+import {StatusPreparation} from "../utils/order.enum";
 
 const orderSchema = new Schema({
         restaurant: {
             type: Schema.Types.ObjectId,
-            required: true
+            required: true,
+            ref: "restaurant"
         },
         customer: {
-            type: Schema.Types.String,
-            required: true
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref:"user"
         },
         menuList: [{
             type: Schema.Types.String
@@ -25,8 +29,12 @@ const orderSchema = new Schema({
         mode: {
             type: Schema.Types.String,
             required: true
+        },
+        statusPreparation: {
+            type: Schema.Types.String,
+            default: StatusPreparation.TODO
         }
-    },
+},
     {
         collection: "order",
         timestamps: true,
@@ -34,12 +42,13 @@ const orderSchema = new Schema({
     });
 
 export interface OrderProps{
-    restaurant: string;
-    customer: string;
+    restaurant: null | RestaurantDocument;
+    customer: null | UserDocument;
     productList: null | String[];
     menuList: null | String[];
-    price: number;
+    price?: number;
     mode: string;
+    statusPreparation?: String;
 }
 
 export type OrderDocument = OrderProps & Document;

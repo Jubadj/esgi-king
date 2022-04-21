@@ -1,5 +1,5 @@
 import mongoose, {Schema, Document, Model} from "mongoose";
-import {UserProps} from "./user.model";
+import {UserDocument, UserProps} from "./user.model";
 
 const sessionSchema = new Schema({
     user: {
@@ -21,7 +21,7 @@ const sessionSchema = new Schema({
 
 export interface SessionProps {
     _id: string;
-    user: string | UserProps;
+    user: string | UserProps | UserDocument;
     platform: string;
     expiration?: Date;
 }
