@@ -63,7 +63,7 @@ export class OrderController {
         const token = parts[1];
         try {
             // Get customer user_id
-            const user = await AuthService.getInstance().getUserFrom(token);
+            const user = await AuthService.getInstance().getUserFromToken(token);
             if(user === null) {
                 console.log("test4")
                 res.status(401).end();
