@@ -39,14 +39,14 @@ export class OrderService {
         if(props.customer !== undefined) {
             order.customer = props.customer;
         }
-        if(props.date !== undefined) {
-            order.date = props.date;
-        }
         if(props.productList !== undefined) {
             order.productList = props.productList;
         }
         if(props.price !== undefined) {
             order.price = props.price;
+        }
+        if(props.statusPreparation !== undefined) {
+            order.statusPreparation = props.statusPreparation;
         }
         const res = await order.save();
         return res;

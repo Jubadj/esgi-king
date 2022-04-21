@@ -1,6 +1,7 @@
 import mongoose, {Schema, Document, Model} from "mongoose";
 import "./product.model"
 import {ProductProps} from "./product.model";
+import {StatusPreparation} from "../enums";
 
 
 const orderSchema = new Schema({
@@ -16,13 +17,12 @@ const orderSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: "product"
         }],
-        date: {
-            type: Schema.Types.Date,
-            required: true
-        },
         price: {
             type: Schema.Types.Number,
             required: true
+        },
+        statusPreparation: {
+            type: Schema.Types.String,
         }
     },
     {
@@ -34,9 +34,9 @@ const orderSchema = new Schema({
 export interface OrderProps{
     restaurant: string;
     customer: string;
-    date: Date;
     productList: null | ProductProps[];
     price: number;
+    statusPreparation: String;
 }
 
 export type OrderDocument = OrderProps & Document;

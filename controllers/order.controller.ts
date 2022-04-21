@@ -6,7 +6,7 @@ export class OrderController {
 
     async createOrder(req: Request, res: Response) {
         const orderBody = req.body;
-        if(!orderBody.restaurant || !orderBody.customer || !orderBody.productList || !orderBody.date|| !orderBody.price) {
+        if(!orderBody.restaurant || !orderBody.customer || !orderBody.productList || !orderBody.price || !orderBody.statusPreparation) {
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -15,8 +15,8 @@ export class OrderController {
                 restaurant: orderBody.restaurant,
                 customer: orderBody.customer,
                 productList: orderBody.productList,
-                date: orderBody.date,
-                price: orderBody.price
+                price: orderBody.price,
+                statusPreparation: orderBody.statusPreparation
             });
             res.json(order);
         } catch(err) {
