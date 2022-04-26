@@ -43,7 +43,7 @@ const orderSchema = new Schema({
 
 export interface OrderProps{
     restaurant: null | RestaurantDocument;
-    customer: null | UserDocument;
+    customer?: null | UserDocument;
     productList: null | String[];
     menuList: null | String[];
     price?: number;
