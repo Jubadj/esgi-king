@@ -1,3 +1,5 @@
+import {StatusPreparation} from "../utils/order.enum";
+
 export class OrderController {
 
     async createOrder(req: Request, res: Response) {
@@ -47,15 +49,11 @@ export class OrderController {
 
     async createOrderOnline(req: Request, res: Response) {
         const orderBody = req.body;
-        //Verify if we have all written attributes in the body
-        if(!orderBody.restaurant) {
-            res.status(400).end(); // 400 -> bad request
-            return;
-        }
 
         // Verify if restaurant exist in DB
         const restaurant = RestaurantService.getInstance().getById(req.params.restaurant_id);
         if(restaurant === null ){
+            console.log("test2")
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -63,18 +61,15 @@ export class OrderController {
         // Get the user token
         const authorization = req.headers['authorization'];
         if(authorization === undefined) {
-            console.log("test")
             res.status(401).end();
             return;
         }
         const parts = authorization.split(" ");
         if(parts.length !== 2) {
-            console.log("test2")
             res.status(401).end();
             return;
         }
         if(parts[0] !== 'Bearer') {
-            console.log("test3")
             res.status(401).end();
             return;
         }
@@ -83,20 +78,19 @@ export class OrderController {
             // Get customer user_id
             const user = await AuthService.getInstance().getUserFromToken(token);
             if(user === null) {
-                console.log("test4")
                 res.status(401).end();
                 return;
             }
             const customer_id = user._id;
-            const restaurantObj = await RestaurantService.getInstance().getById(req.params.restauran_id);
+            const restaurantObj = await RestaurantService.getInstance().getById(req.params.restaurant_id);
             const order = await OrderService.getInstance().createOrder({
                 restaurant: restaurantObj,
                 customer: user,
                 productList: orderBody.productList,
-                menuList: orderBody.menuList,
-                price: orderBody.price,
+                menuList: orderBody.productList,
+                price: await OrderService.getInstance().calculatePrice(null, null),
                 mode: orderBody.mode,
-                statusPreparation: orderBody.statusPreparation
+                statusPreparation: StatusPreparation.TODO
             });
             res.json(order);
         } catch(err) {
@@ -159,8 +153,8 @@ export class OrderController {
         router.post('/', express.json(), isCustomer(), this.createOrder.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
         // Online order
         //router.post('/online', express.json(), checkUserConnected(), isCustomer(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.post('/online/:restaurant_id', express.json(),  this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.get('/', checkUserConnected(), canSeeProduct(), this.getAllOrders.bind(this));
+        router.post('/online/:restaurant_id', express.json(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.get('/', /*checkUserConnected(),*/ canSeeProduct(), this.getAllOrders.bind(this));
         router.get('/:order_id', checkUserConnected(), canSeeProduct(), this.getOrder.bind(this));
         router.delete('/:order_id', checkUserConnected(), canSeeProduct(), this.deleteOrder.bind(this));
         router.put('/:order_id', express.json(), checkUserConnected(), canSeeProduct(), this.updateOrder.bind(this));

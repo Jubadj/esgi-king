@@ -11,8 +11,7 @@ export class OrderService {
 
     public async createOrder(props: OrderProps): Promise<OrderDocument> {
         const model = new OrderModel(props);
-        const order = await model.save();
-        return order;
+        return await model.save();
     }
 
     async getAll(): Promise<OrderDocument[]> {
@@ -29,14 +28,15 @@ export class OrderService {
     }
 
     // TODO
-    // async calculatePrice(productList: null | String[], menuList: null | String[]){
-    //     for (let i = 0; i < productList.lenght; i++) {
-    //         console.log ("Block statement execution no." + i);
-    //     }
-    //     for (let i = 0; i < menuList.lenght; i++) {
-    //         console.log ("Block statement execution no." + i);
-    //     }
-    // }
+    async calculatePrice(productList: null | String[], menuList: null | String[]){
+        // for (let i = 0; i < productList.lenght; i++) {
+        //     console.log ("Block statement execution no." + i);
+        // }
+        // for (let i = 0; i < menuList.lenght; i++) {
+        //     console.log ("Block statement execution no." + i);
+        // }
+        return 5;
+    }
 
     async updateById(orderId: string, props: OrderProps): Promise<OrderDocument | null> {
         const order = await this.getById(orderId);
