@@ -4,44 +4,34 @@ export class OrderController {
 
     async createOrder(req: Request, res: Response) {
         const orderBody = req.body;
-        // Get the user token
-        const authorization = req.headers['authorization'];
-        if(authorization === undefined) {
-            res.status(401).end();
-            return;
-        }
-        const parts = authorization.split(" ");
-        if(parts.length !== 2) {
-            res.status(401).end();
-            return;
-        }
-        if(parts[0] !== 'Bearer') {
-            res.status(401).end();
-            return;
-        }
-        const token = parts[1];
+
         const restaurantObj = await RestaurantService.getInstance().getById(req.params.restaurant_id);
 
         try {
             if ( !restaurantObj ){
                 res.status(400).end(); // 400 ->bad request
             }
-            // Get customer user_id
-            const user = await AuthService.getInstance().getUserFromToken(token);
-            if(user === null) {
-                res.status(401).end();
-                return;
-            }
-            const customerObj = await AuthService.getInstance().getById(user._id);
+            const customerobj = await AuthService.getInstance().subscribeUser({
+                login: undefined,
+                password: SecurityUtils.sha512("offline"),
+                role: ROLE.CUSTOMER,
+                firstName: orderBody.customerFirstName,
+                lastName: orderBody.CustomerLastName
+            })
+            console.log("customer done")
             const order = await OrderService.getInstance().createOrder({
                 restaurant: restaurantObj,
-                customer: customerObj,
+                customer: customerobj,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
                 mode: orderBody.mode
             });
+            //TODO to FIX
+            console.log("order done", order)
             res.json(order);
+            console.log("order saved in db")
         } catch(err) {
+            console.log("order creation done")
             res.status(400).end(); // erreur des données utilisateurs
             return;
         }
@@ -81,13 +71,13 @@ export class OrderController {
                 res.status(401).end();
                 return;
             }
-            const customer_id = user._id;
+            //const customer_id = user._id;
             const restaurantObj = await RestaurantService.getInstance().getById(req.params.restaurant_id);
             const order = await OrderService.getInstance().createOrder({
                 restaurant: restaurantObj,
                 customer: user,
                 productList: orderBody.productList,
-                menuList: orderBody.productList,
+                menuList: orderBody.menuList,
                 price: await OrderService.getInstance().calculatePrice(null, null),
                 mode: orderBody.mode,
                 statusPreparation: StatusPreparation.TODO
@@ -150,10 +140,10 @@ export class OrderController {
         const router = express.Router();
 
         // When in restaurant "Sur place"
-        router.post('/', express.json(), isCustomer(), this.createOrder.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.post('/:restaurant_id', express.json(), isCustomer(), this.createOrder.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
         // Online order
         //router.post('/online', express.json(), checkUserConnected(), isCustomer(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.post('/online/:restaurant_id', express.json(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.post('/online/:restaurant_id', express.json(), checkUserConnected(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
         router.get('/', /*checkUserConnected(),*/ canSeeProduct(), this.getAllOrders.bind(this));
         router.get('/:order_id', checkUserConnected(), canSeeProduct(), this.getOrder.bind(this));
         router.delete('/:order_id', checkUserConnected(), canSeeProduct(), this.deleteOrder.bind(this));
@@ -163,6 +153,7 @@ export class OrderController {
 }
 
 import express, {Router, Request, Response} from "express";
-import {checkUserConnected, canSeeProduct, isAdmin, isBigBoss, isCustomer, isPreparer} from "../middlewares";
+import {checkUserConnected, canSeeProduct, isAdmin, isBigBoss, isCustomer, isPreparer, ROLE} from "../middlewares";
 
 import {AuthService, OrderService, RestaurantService} from "../services";
+import {SecurityUtils} from "../utils";
