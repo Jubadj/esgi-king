@@ -1,37 +1,36 @@
 import {StatusPreparation} from "../utils/order.enum";
 
+import express, {Router, Request, Response, RequestHandler} from "express";
+
 export class OrderController {
 
-    async createOrder(req: Request, res: Response) {
+    async createOrderOffline(req: Request, res: Response) {
         const orderBody = req.body;
+        if (!orderBody.customerName){
+            console.log("created order error: customerName is missing!");
+            res.status(400).end(); // 400 -> bad request
+            return;
+        }
 
         const restaurantObj = await RestaurantService.getInstance().getById(req.params.restaurant_id);
-
+        // Verify if restaurant exist in DB
+        if(restaurantObj === null ){
+            console.log("created order error: Restaurant not found!");
+            res.status(400).end(); // 400 -> bad request
+            return;
+        }
         try {
-            if ( !restaurantObj ){
-                res.status(400).end(); // 400 ->bad request
-            }
-            const customerobj = await AuthService.getInstance().subscribeUser({
-                login: undefined,
-                password: SecurityUtils.sha512("offline"),
-                role: ROLE.CUSTOMER,
-                firstName: orderBody.customerFirstName,
-                lastName: orderBody.CustomerLastName
-            })
-            console.log("customer done")
             const order = await OrderService.getInstance().createOrder({
                 restaurant: restaurantObj,
-                customer: customerobj,
+                customerName: orderBody.customerName,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
-                mode: orderBody.mode
+                price: await OrderService.getInstance().calculatePrice(null, null),
+                mode: "Sur place" //TODO as enum
             });
-            //TODO to FIX
-            console.log("order done", order)
             res.json(order);
-            console.log("order saved in db")
         } catch(err) {
-            console.log("order creation done")
+            console.log("created order !");
             res.status(400).end(); // erreur des données utilisateurs
             return;
         }
@@ -43,7 +42,6 @@ export class OrderController {
         // Verify if restaurant exist in DB
         const restaurant = RestaurantService.getInstance().getById(req.params.restaurant_id);
         if(restaurant === null ){
-            console.log("test2")
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -71,15 +69,16 @@ export class OrderController {
                 res.status(401).end();
                 return;
             }
-            //const customer_id = user._id;
+
             const restaurantObj = await RestaurantService.getInstance().getById(req.params.restaurant_id);
             const order = await OrderService.getInstance().createOrder({
                 restaurant: restaurantObj,
                 customer: user,
+                customerName: user.firstName + " " + user.lastName,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
-                price: await OrderService.getInstance().calculatePrice(null, null),
-                mode: orderBody.mode,
+                price: await OrderService.getInstance().calculatePrice(null, null),//TODO calculate price
+                mode: "A distance",
                 statusPreparation: StatusPreparation.TODO
             });
             res.json(order);
@@ -87,11 +86,33 @@ export class OrderController {
             res.status(400).end(); // erreur des données utilisateurs
             return;
         }
-
     }
 
     async getAllOrders(req: Request, res: Response) {
         const orders = await OrderService.getInstance().getAll();
+        res.json(orders);
+    }
+
+    async getCustomerOneOrder(req: Request, res: Response) {
+        const orderBody = req.body;
+        switch (orderBody){
+            case !orderBody.restaurant:{
+                console.log("Get all own order error: restaurant is missing!");
+                res.status(400).end(); // 400 -> bad request
+                break;
+            }
+            case !orderBody.customerName:{
+                console.log("Get all own order error: customerName is missing!");
+                res.status(400).end(); // 400 -> bad request
+                break;
+            }
+            case !orderBody.date:{
+                console.log("Get all own order error: date is missing!");
+                res.status(400).end(); // 400 -> bad request
+                break;
+            }
+        }
+        const orders = await OrderService.getInstance().getAllOwn(orderBody.restaurant, orderBody.customerName, orderBody.date);
         res.json(orders);
     }
 
@@ -136,24 +157,44 @@ export class OrderController {
         }
     }
 
+    async test1(req: Request, res: Response) {
+        console.log("Connected !");
+        res.send("Connected !");
+    }
+
+    async test2(req: Request, res: Response) {
+        console.log("Function called !");
+        res.send("Function called !");
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
 
-        // When in restaurant "Sur place"
-        router.post('/:restaurant_id', express.json(), isCustomer(), this.createOrder.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        //Offline Order
+        router.post('/offline/:restaurant_id', express.json(), this.createOrderOffline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.use(checkUserConnected());
         // Online order
-        //router.post('/online', express.json(), checkUserConnected(), isCustomer(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.post('/online/:restaurant_id', express.json(), checkUserConnected(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.get('/', /*checkUserConnected(),*/ canSeeProduct(), this.getAllOrders.bind(this));
-        router.get('/:order_id', checkUserConnected(), canSeeProduct(), this.getOrder.bind(this));
-        router.delete('/:order_id', checkUserConnected(), canSeeProduct(), this.deleteOrder.bind(this));
-        router.put('/:order_id', express.json(), checkUserConnected(), canSeeProduct(), this.updateOrder.bind(this));
+        router.post('/online/:restaurant_id', isCustomer(), express.json(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.get('/', this.getAllOrders.bind(this));
+
+        router.get('/:order_id', canSeeOrder(), this.getOrder.bind(this));
+        //router.get('customer/:order_id', isCustomer(), this.getCustomerOrder.bind(this));
+
+        router.delete('/:order_id', canSeeProduct(), this.deleteOrder.bind(this));
+        router.put('/:order_id', canSeeProduct(), express.json(), this.updateOrder.bind(this));
         return router;
     }
 }
-
-import express, {Router, Request, Response} from "express";
-import {checkUserConnected, canSeeProduct, isAdmin, isBigBoss, isCustomer, isPreparer, ROLE} from "../middlewares";
+import {
+    checkUserConnected,
+    canSeeProduct,
+    isAdmin,
+    isBigBoss,
+    isCustomer,
+    isPreparer,
+    ROLE,
+    canSeeOrder
+} from "../middlewares";
 
 import {AuthService, OrderService, RestaurantService} from "../services";
 import {SecurityUtils} from "../utils";

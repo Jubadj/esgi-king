@@ -18,6 +18,11 @@ export class OrderService {
         return OrderModel.find().exec();
     }
 
+    async getAllOwn(restaurantId: String, customerName: String, date: Date): Promise<OrderDocument[]> {
+        return OrderModel.find({"restaurant": restaurantId, "customerName": customerName,
+            "createdAt": Date}).exec();
+    }
+
     async getById(orderId: string): Promise<OrderDocument | null> {
         return OrderModel.findById(orderId).exec();
     }
@@ -46,8 +51,8 @@ export class OrderService {
         if(props.restaurant !== undefined) {
             order.restaurant = props.restaurant;
         }
-        if(props.customer !== undefined) {
-            order.customer = props.customer;
+        if(props.customerName !== undefined) {
+            order.customerName = props.customerName;
         }
         if(props.productList !== undefined) {
             order.productList = props.productList;
@@ -64,7 +69,6 @@ export class OrderService {
         if(props.statusPreparation !== undefined) {
             order.statusPreparation = props.statusPreparation;
         }
-        const res = await order.save();
-        return res;
+        return await order.save();
     }
 }

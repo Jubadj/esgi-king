@@ -1,4 +1,4 @@
-import {ProductDocument, ProductModel, UserDocument, UserModel, UserProps} from "../models";
+import {OrderModel, ProductDocument, ProductModel, UserDocument, UserModel, UserProps} from "../models";
 import {SecurityUtils} from "../utils";
 import {SessionDocument, SessionModel} from "../models/session.model";
 import {Session} from "inspector";
@@ -74,5 +74,10 @@ export class AuthService {
            }
         }).populate("user").exec();
         return session ? session.user as UserDocument : null;
+    }
+
+    async deleteUserById(userId: string): Promise<boolean> {
+        const res = await UserModel.deleteOne({_id: userId}).exec();
+        return res.deletedCount === 1;
     }
 }

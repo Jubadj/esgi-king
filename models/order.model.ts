@@ -13,8 +13,11 @@ const orderSchema = new Schema({
         },
         customer: {
             type: Schema.Types.ObjectId,
-            required: true,
             ref:"user"
+        },
+        customerName: {
+            type: Schema.Types.String,
+            required: true
         },
         menuList: [{
             type: Schema.Types.String
@@ -43,12 +46,13 @@ const orderSchema = new Schema({
 
 export interface OrderProps{
     restaurant: null | RestaurantDocument;
-    customer?: null | string | UserDocument;
+    customer?: null | UserDocument;
+    customerName: string | undefined;
     productList: null | String[];
     menuList: null | String[];
     price?: number;
     mode: string;
-    statusPreparation?: String;
+    statusPreparation?: string;
 }
 
 export type OrderDocument = OrderProps & Document;
