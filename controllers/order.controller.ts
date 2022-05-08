@@ -172,10 +172,9 @@ export class OrderController {
 
         router.get('/historyOrder', isCustomer(), this.getHistoryOrders.bind(this));
         router.get('/:order_id', canSeeOrder(), this.getOrder.bind(this));
-        //router.get('customer/:order_id', isCustomer(), this.getCustomerOrder.bind(this));
 
-        router.delete('/:order_id', canSeeOrder(), this.deleteOrder.bind(this));
-        router.put('/:order_id', canSeeOrder(), express.json(), this.updateOrder.bind(this));
+        router.delete('/:order_id', isAdmin(), this.deleteOrder.bind(this));
+        router.put('/:order_id', express.json(), this.updateOrder.bind(this));
         return router;
     }
 }
