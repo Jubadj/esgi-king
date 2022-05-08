@@ -18,9 +18,8 @@ export class OrderService {
         return OrderModel.find().exec();
     }
 
-    async getAllOwn(restaurantId: String, customerName: String, date: Date): Promise<OrderDocument[]> {
-        return OrderModel.find({"restaurant": restaurantId, "customerName": customerName,
-            "createdAt": Date}).exec();
+    async getAllOwn(customer_id: String): Promise<OrderDocument[]> {
+        return OrderModel.find({"customer": customer_id}).exec();
     }
 
     async getById(orderId: string): Promise<OrderDocument | null> {

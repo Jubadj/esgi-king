@@ -99,5 +99,6 @@ dist
 # TernJS port file
 .tern-port
 
-
 package.json
+
+.gitignore

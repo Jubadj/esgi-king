@@ -50,7 +50,7 @@ export function canSeeOrder(): RequestHandler {
             const user = await AuthService.getInstance().getUserFrom(token);
             const order = await OrderService.getInstance().getById(req.params.order_id);
             if (user === null || order===null){
-                console.log("order or user problem");
+                console.log("Order or user problem");
                 res.status(401).end();
                 return;
             }

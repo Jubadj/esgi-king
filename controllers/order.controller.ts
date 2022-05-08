@@ -93,26 +93,29 @@ export class OrderController {
         res.json(orders);
     }
 
-    async getCustomerOneOrder(req: Request, res: Response) {
-        const orderBody = req.body;
-        switch (orderBody){
-            case !orderBody.restaurant:{
-                console.log("Get all own order error: restaurant is missing!");
-                res.status(400).end(); // 400 -> bad request
-                break;
-            }
-            case !orderBody.customerName:{
-                console.log("Get all own order error: customerName is missing!");
-                res.status(400).end(); // 400 -> bad request
-                break;
-            }
-            case !orderBody.date:{
-                console.log("Get all own order error: date is missing!");
-                res.status(400).end(); // 400 -> bad request
-                break;
-            }
+    async getHistoryOrders(req: Request, res: Response) {
+        // Get the user token
+        const authorization = req.headers['authorization'];
+        if(authorization === undefined) {
+            res.status(401).end();
+            return;
         }
-        const orders = await OrderService.getInstance().getAllOwn(orderBody.restaurant, orderBody.customerName, orderBody.date);
+        const parts = authorization.split(" ");
+        if(parts.length !== 2) {
+            res.status(401).end();
+            return;
+        }
+        if(parts[0] !== 'Bearer') {
+            res.status(401).end();
+            return;
+        }
+        const token = parts[1];
+        const customer = await AuthService.getInstance().getUserFromToken(token);
+        if(customer === null) {
+            res.status(401).end();
+            return;
+        }
+        const orders = await OrderService.getInstance().getAllOwn(customer._id);
         res.json(orders);
     }
 
@@ -165,8 +168,9 @@ export class OrderController {
         router.use(checkUserConnected());
         // Online order
         router.post('/online/:restaurant_id', isCustomer(), express.json(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.get('/', this.getAllOrders.bind(this));
+        router.get('/allOrders', isAdmin(), this.getAllOrders.bind(this));
 
+        router.get('/historyOrder', isCustomer(), this.getHistoryOrders.bind(this));
         router.get('/:order_id', canSeeOrder(), this.getOrder.bind(this));
         //router.get('customer/:order_id', isCustomer(), this.getCustomerOrder.bind(this));
 
@@ -188,3 +192,4 @@ import {
 
 import {AuthService, OrderService, RestaurantService} from "../services";
 import {SecurityUtils} from "../utils";
+import {AuthController} from "./auth.controller";
