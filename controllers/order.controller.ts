@@ -157,16 +157,6 @@ export class OrderController {
         }
     }
 
-    async test1(req: Request, res: Response) {
-        console.log("Connected !");
-        res.send("Connected !");
-    }
-
-    async test2(req: Request, res: Response) {
-        console.log("Function called !");
-        res.send("Function called !");
-    }
-
     buildRoutes(): Router {
         const router = express.Router();
 
@@ -180,8 +170,8 @@ export class OrderController {
         router.get('/:order_id', canSeeOrder(), this.getOrder.bind(this));
         //router.get('customer/:order_id', isCustomer(), this.getCustomerOrder.bind(this));
 
-        router.delete('/:order_id', canSeeProduct(), this.deleteOrder.bind(this));
-        router.put('/:order_id', canSeeProduct(), express.json(), this.updateOrder.bind(this));
+        router.delete('/:order_id', canSeeOrder(), this.deleteOrder.bind(this));
+        router.put('/:order_id', canSeeOrder(), express.json(), this.updateOrder.bind(this));
         return router;
     }
 }
