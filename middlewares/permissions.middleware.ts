@@ -55,20 +55,15 @@ export function canSeeOrder(): RequestHandler {
                 return;
             }
             if (user.role === ROLE.CUSTOMER){
-                console.log("we are customer");
                 console.log(user._id);
-                console.log(order.customer);
+                console.log(order.customer?._id);
 
-                if ( user._id != order.customer?._id){
-                    console.log("we are customer: incorrect id");
+                if (!order.customer?._id.equals(user._id)){
+                    console.log("This is not your order ;) : Incorrect customer id");
                     res.status(401).end();
                     return;
                 }
             }
-            // if(user.role !== ROLE.ADMIN || user.role!== ROLE.BIGBOSS) {
-            //     res.status(401).end();
-            //     return;
-            // }
             next();
         } catch(err) {
             res.status(401).end();
