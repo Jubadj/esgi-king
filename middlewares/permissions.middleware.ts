@@ -70,3 +70,36 @@ export function canSeeOrder(): RequestHandler {
         }
     }
 }
+
+// can change order's status (exclusively !)
+export function canChangeOrderStatus(): RequestHandler {
+    return async function (req: Request,
+                           res,
+                           next) {
+        const authorization = req.headers['authorization'];
+        if (authorization === undefined) {
+            res.status(401).end();
+            return;
+        }
+        const parts = authorization.split(" ");
+        const token = parts[1];
+        try {
+            const user = await AuthService.getInstance().getUserFrom(token);
+            const order = await OrderService.getInstance().getById(req.params.order_id);
+            if (user === null || order === null) {
+                console.log("Order or user problem");
+                res.status(401).end();
+                return;
+            }
+            if (user.role !== ROLE.PREPARER || user.role !== ROLE.ADMIN) {
+                console.log("user is not allowed to change order's status !");
+                res.status(401).end();
+                return;
+            }
+            next();
+        } catch (err) {
+            res.status(401).end();
+        }
+
+    }
+}

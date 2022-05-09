@@ -160,6 +160,21 @@ export class OrderController {
         }
     }
 
+    async updateOrderStatus(req: Request, res: Response) {
+        try {
+            const order = await OrderService.getInstance()
+                .updateStatus(req.params.order_id, req.body.statusPreparation);
+            if(!order) {
+                console.log("problem with order");
+                res.status(404).end();
+                return;
+            }
+            res.json(order);
+        } catch (err) {
+            res.status(400).end();
+        }
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
 
@@ -174,7 +189,9 @@ export class OrderController {
         router.get('/:order_id', canSeeOrder(), this.getOrder.bind(this));
 
         router.delete('/:order_id', isAdmin(), this.deleteOrder.bind(this));
-        router.put('/:order_id', express.json(), this.updateOrder.bind(this));
+        router.put('/:order_id', isAdmin(), express.json(), this.updateOrder.bind(this));
+
+        router.put('/status/:order_id', canChangeOrderStatus(), this.updateOrderStatus.bind(this));
         return router;
     }
 }
@@ -186,7 +203,7 @@ import {
     isCustomer,
     isPreparer,
     ROLE,
-    canSeeOrder
+    canSeeOrder, canChangeOrderStatus
 } from "../middlewares";
 
 import {AuthService, OrderService, RestaurantService} from "../services";

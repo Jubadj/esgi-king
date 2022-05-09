@@ -1,5 +1,5 @@
-export const StatusPreparation = {
-    DONE: 'DONE',
-    TODO: 'TODO',
-    INPROGRESS: 'INPROGRESS'
+export enum StatusPreparation {
+    DONE = 'DONE',
+    TODO = 'TODO',
+    INPROGRESS = 'INPROGRESS'
 }

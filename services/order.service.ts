@@ -1,4 +1,7 @@
 import {OrderDocument, OrderModel, OrderProps} from "../models";
+import {StatusPreparation} from "../utils/order.enum";
+
+
 export class OrderService {
     private static instance?: OrderService;
     public static getInstance(): OrderService {
@@ -67,6 +70,19 @@ export class OrderService {
         }
         if(props.statusPreparation !== undefined) {
             order.statusPreparation = props.statusPreparation;
+        }
+        return await order.save();
+    }
+
+    async updateStatus(orderId: string, status: string): Promise<OrderDocument | null> {
+        const order = await this.getById(orderId);
+        if (!order) {
+            console.log("service problem order");
+            return null;
+        }
+        if (status !== undefined) {
+            console.log("problem with status !!")
+            order.statusPreparation = status;
         }
         return await order.save();
     }
