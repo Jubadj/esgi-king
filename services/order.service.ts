@@ -81,9 +81,12 @@ export class OrderService {
             return null;
         }
         if (status !== undefined) {
-            console.log("problem with status !!")
-            order.statusPreparation = status;
+            if(status !== StatusPreparation.TODO && status !== StatusPreparation.INPROGRESS && status !== StatusPreparation.DONE){
+                console.log("updateStatus Error: wrong parameter");
+                return null;
+            }
         }
+        order.statusPreparation = status;
         return await order.save();
     }
 }

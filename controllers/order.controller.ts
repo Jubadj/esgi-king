@@ -163,14 +163,19 @@ export class OrderController {
     async updateOrderStatus(req: Request, res: Response) {
         try {
             const order = await OrderService.getInstance()
-                .updateStatus(req.params.order_id, req.body.statusPreparation);
+             .updateStatus(req.params.order_id, req.body.statusPreparation);
+
             if(!order) {
                 console.log("problem with order");
                 res.status(404).end();
                 return;
             }
+
+
+
             res.json(order);
         } catch (err) {
+            console.log("Bad params");
             res.status(400).end();
         }
     }

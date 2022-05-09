@@ -91,7 +91,8 @@ export function canChangeOrderStatus(): RequestHandler {
                 res.status(401).end();
                 return;
             }
-            if (user.role !== ROLE.PREPARER || user.role !== ROLE.ADMIN) {
+            // || user.role !== ROLE.ADMIN
+            if (user.role !== ROLE.PREPARER) {
                 console.log("user is not allowed to change order's status !");
                 res.status(401).end();
                 return;
