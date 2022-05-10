@@ -170,9 +170,6 @@ export class OrderController {
                 res.status(404).end();
                 return;
             }
-
-
-
             res.json(order);
         } catch (err) {
             console.log("Bad params");
