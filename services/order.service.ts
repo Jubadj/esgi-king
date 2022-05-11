@@ -1,6 +1,7 @@
-import {OrderDocument, OrderModel, OrderProps} from "../models";
+import {DiscountProps, OrderDocument, OrderModel, OrderProps} from "../models";
 import {StatusPreparation} from "../utils/order.enum";
 import {discountEnum, promo} from "../utils/discount.enum";
+import {DiscountService} from "../services";
 
 
 export class OrderService {
@@ -111,20 +112,34 @@ export class OrderService {
         return null;
     }
 
-    async pay(orderId: string, price: number): Promise<OrderDocument | null> {
+    async pay(orderId: string, initialPrice: number, discount : string): Promise<OrderDocument | null> {
+        if(!discount){
+            const reduce = 0;
+        }
+
+        const promo = await DiscountService.getInstance().getByCode(discount);
+
+        if(!promo){
+            console.log("discount code not found");
+            return null;
+        }
+
         const order = await this.getById(orderId);
-        //const promo = await this.convert(code);
-        console.log(promo);
+
         if (!order) {
             console.log("service problem order");
             return null;
         }
+
+        const orderPrice = order.price - (order.price * (promo.percent / 100));
+
         if(order.paid === true){
             console.log("order already paid");
             return null;
         }
-        if (price !== undefined) {
-            if (price < order.price) {
+
+        if (initialPrice !== undefined) {
+            if (initialPrice < orderPrice) {
                 console.log("pay Error: Insufficient amount");
                 return null;
             }

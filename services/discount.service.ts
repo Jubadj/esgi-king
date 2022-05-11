@@ -23,8 +23,8 @@ export class DiscountService {
         return DiscountModel.findById(discountId).exec();
     }
 
-    async getByCode(info: Pick<DiscountProps, 'code'>): Promise<DiscountDocument | null> {
-        return  DiscountModel.findOne(info).exec();
+    async getByCode(info: string): Promise<DiscountDocument | null> {
+        return  DiscountModel.findOne({code:info}).exec();
     }
 
     async deleteById(discountId: string): Promise<boolean> {

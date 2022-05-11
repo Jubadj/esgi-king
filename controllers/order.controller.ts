@@ -182,7 +182,7 @@ export class OrderController {
     async payOrder(req: Request, res: Response) {
         try {
             const order = await OrderService.getInstance()
-                .pay(req.params.order_id, req.body.price);
+                .pay(req.params.order_id, req.body.price, req.body.discount);
 
             if(!order) {
                 console.log("problem with order");
@@ -191,7 +191,6 @@ export class OrderController {
             }
             res.json(order);
         } catch (err) {
-            console.log("Bad params");
             res.status(400).end();
         }
     }
