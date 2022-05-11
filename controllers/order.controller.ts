@@ -26,7 +26,8 @@ export class OrderController {
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
                 price: await OrderService.getInstance().calculatePrice(null, null),
-                mode: "Sur place" //TODO as enum
+                mode: "Sur place", //TODO as enum
+                paid: false
             });
             res.json(order);
         } catch(err) {
@@ -79,7 +80,8 @@ export class OrderController {
                 menuList: orderBody.menuList,
                 price: await OrderService.getInstance().calculatePrice(null, null),//TODO calculate price
                 mode: "A distance",
-                statusPreparation: StatusPreparation.TODO
+                statusPreparation: StatusPreparation.TODO,
+                paid: false
             });
             res.json(order);
         } catch(err) {
@@ -177,6 +179,23 @@ export class OrderController {
         }
     }
 
+    async payOrder(req: Request, res: Response) {
+        try {
+            const order = await OrderService.getInstance()
+                .pay(req.params.order_id, req.body.price);
+
+            if(!order) {
+                console.log("problem with order");
+                res.status(404).end();
+                return;
+            }
+            res.json(order);
+        } catch (err) {
+            console.log("Bad params");
+            res.status(400).end();
+        }
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
 
@@ -193,7 +212,9 @@ export class OrderController {
         router.delete('/:order_id', isAdmin(), this.deleteOrder.bind(this));
         router.put('/:order_id', isAdmin(), express.json(), this.updateOrder.bind(this));
 
-        router.put('/status/:order_id', canChangeOrderStatus(), this.updateOrderStatus.bind(this));
+        router.put('/status/:order_id', canChangeOrderStatus(), express.json(), this.updateOrderStatus.bind(this));
+        router.post('/pay/:order_id', isCustomer(), express.json(), this.payOrder.bind(this));
+
         return router;
     }
 }

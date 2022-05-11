@@ -36,6 +36,10 @@ const orderSchema = new Schema({
         statusPreparation: {
             type: Schema.Types.String,
             default: StatusPreparation.TODO
+        },
+        paid: {
+            type: Schema.Types.Boolean,
+            default: false
         }
 },
     {
@@ -50,9 +54,10 @@ export interface OrderProps{
     customerName: string | undefined;
     productList: null | String[];
     menuList: null | String[];
-    price?: number;
+    price: number;
     mode: string;
     statusPreparation?: string;
+    paid: boolean;
 }
 
 export type OrderDocument = OrderProps & Document;
