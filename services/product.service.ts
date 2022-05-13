@@ -11,8 +11,7 @@ export class ProductService {
 
     public async createProduct(props: ProductProps): Promise<ProductDocument> {
         const model = new ProductModel(props);
-        const product = await model.save();
-        return product;
+        return await model.save();
     }
 
     async getAll(): Promise<ProductDocument[]> {
@@ -23,8 +22,8 @@ export class ProductService {
         return ProductModel.findById(productId).exec();
     }
 
-    async getByName(info: Pick<ProductProps, 'name'>): Promise<ProductDocument | null> {
-        return  ProductModel.findOne(info).exec();
+    async getByName(name: string): Promise<ProductDocument | null> {
+        return  ProductModel.findOne({"name": name}).exec();
     }
 
     async deleteById(productId: string): Promise<boolean> {
@@ -43,16 +42,42 @@ export class ProductService {
         if(props.weight !== undefined) {
             product.weight = props.weight;
         }
-        if(props.calories !== undefined) {
-            product.calories = props.calories;
-        }
         if(props.count !== undefined) {
             product.count = props.count;
         }
-        if(props.type !== undefined) {
-            product.type = props.type;
+        if(props.price !== undefined) {
+            product.price = props.price;
         }
         const res = await product.save();
         return res;
+    }
+
+    async exist(productName:string): Promise<boolean> {
+        const tmpProduct = await this.getByName(productName);
+        if ( !tmpProduct ){
+            return false;
+        }
+        return true;
+    }
+
+    async productAvailable(productName:string): Promise<boolean>{
+        const tmpProduct = await this.getByName(productName);
+        if ( !tmpProduct ){
+            return false;
+        }
+        else if  (tmpProduct.count<=0){
+            return false;
+        }
+        return true;
+    }
+
+    async countDecrease(productName: string): Promise<boolean>{
+        const product = await this.getByName(productName);
+        if ( product ){
+            product.count -= 1;
+            await product.save();
+            return true;
+        }
+        return false;
     }
 }

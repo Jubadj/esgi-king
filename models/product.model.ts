@@ -11,14 +11,6 @@ const productSchema = new Schema({
             type: Schema.Types.Number,
             required: true
         },
-        calories: {
-            type: Schema.Types.Number,
-            required: true
-        },
-        // Vegetarian or with meat
-        type: {
-            type: Schema.Types.String
-        },
         count: {
             type: Schema.Types.Number,
             required: true
@@ -37,8 +29,6 @@ const productSchema = new Schema({
 export interface ProductProps{
     name: string;
     weight: number;
-    calories: number;
-    type?: string;
     count: number;
     price: number;
 }

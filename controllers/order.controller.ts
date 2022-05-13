@@ -40,6 +40,17 @@ export class OrderController {
     async createOrderOnline(req: Request, res: Response) {
         const orderBody = req.body;
 
+        let menuProducts = [];
+
+        if (orderBody.menuList){
+            for (let i=0; i<orderBody.menuList.length; i++){
+                const menu = await SetMenuService.getInstance().getByName(orderBody.menuList[i]);
+                if (menu){
+                    menuProducts.push();
+                }
+            }
+        }
+
         // Verify if restaurant exist in DB
         const restaurant = RestaurantService.getInstance().getById(req.params.restaurant_id);
         if(restaurant === null ){
@@ -228,6 +239,7 @@ import {
     canSeeOrder, canChangeOrderStatus
 } from "../middlewares";
 
-import {AuthService, OrderService, RestaurantService} from "../services";
+import {AuthService, OrderService, ProductService, RestaurantService, SetMenuService} from "../services";
 import {SecurityUtils} from "../utils";
 import {AuthController} from "./auth.controller";
+import {SetMenuDocument} from "../models";

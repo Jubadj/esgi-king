@@ -120,21 +120,21 @@ export class OrderService {
         const promo = await DiscountService.getInstance().getByCode(discount);
 
         if(!promo){
-            console.log("discount code not found");
+            console.log("pay error: discount code not found");
             return null;
         }
 
         const order = await this.getById(orderId);
 
         if (!order) {
-            console.log("service problem order");
+            console.log("pay error: order do not exist.");
             return null;
         }
 
         const orderPrice = order.price - (order.price * (promo.percent / 100));
 
-        if(order.paid === true){
-            console.log("order already paid");
+        if(order.paid){
+            console.log("pay error: order already paid");
             return null;
         }
 
