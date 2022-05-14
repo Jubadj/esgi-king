@@ -1,7 +1,7 @@
 import {DiscountProps, OrderDocument, OrderModel, OrderProps} from "../models";
 import {StatusPreparation} from "../utils/order.enum";
 import {discountEnum, promo} from "../utils/discount.enum";
-import {DiscountService} from "../services";
+import {DiscountService, ProductService, SetMenuService} from "../services";
 
 
 export class OrderService {
@@ -39,15 +39,29 @@ export class OrderService {
         return res.deletedCount === 1;
     }
 
-    // TODO
-    async calculatePrice(productList: null | String[], menuList: null | String[]) {
-        // for (let i = 0; i < productList.lenght; i++) {
-        //     console.log ("Block statement execution no." + i);
-        // }
-        // for (let i = 0; i < menuList.lenght; i++) {
-        //     console.log ("Block statement execution no." + i);
-        // }
-        return 5;
+
+    async calculatePrice(productList: null | string[], menuList: null | string[]) {
+        let result = 0;
+        if (productList !== null && productList !== []){
+            for (let i = 0; i < productList?.length; i++) {
+                const product = await ProductService.getInstance().getByName(productList[i]);
+                if (product){
+                    console.log("on rentre dans la productList");
+                    result += product.price;
+                }
+            }
+        }
+
+        if (menuList && menuList !== []){
+            for (let i = 0; i < menuList?.length; i++) {
+                const menu = await SetMenuService.getInstance().getByName(menuList[i]);
+                if (menu){
+                    result += menu.price;
+                }
+            }
+        }
+        console.log("on retourne ici");
+        return result;
     }
 
     async updateById(orderId: string, props: OrderProps): Promise<OrderDocument | null> {
@@ -112,40 +126,46 @@ export class OrderService {
         return null;
     }
 
-    async pay(orderId: string, initialPrice: number, discount : string): Promise<OrderDocument | null> {
-        if(!discount){
-            const reduce = 0;
-        }
-
-        const promo = await DiscountService.getInstance().getByCode(discount);
-
-        if(!promo){
-            console.log("pay error: discount code not found");
-            return null;
-        }
+    async pay(orderId: string, initialPrice: number, discount : string | undefined): Promise<OrderDocument | null> {
 
         const order = await this.getById(orderId);
-
         if (!order) {
             console.log("pay error: order do not exist.");
             return null;
         }
 
-        const orderPrice = order.price - (order.price * (promo.percent / 100));
+        if(discount) {
+            const promo = await DiscountService.getInstance().getByCode(discount);
+
+            if (!promo) {
+                console.log("pay error: discount code not found");
+                return null;
+            }
+            const orderPrice = order.price - (order.price * (promo.percent / 100));
+            // }else{
+            //     const orderPrice = order.price;
+            // }
+        }
+
+        const orderPrice = initialPrice;
 
         if(order.paid){
             console.log("pay error: order already paid");
             return null;
         }
 
-        if (initialPrice !== undefined) {
-            if (initialPrice < orderPrice) {
+        if (!initialPrice) {
+            console.log("pay error: order already paid");
+            return null;
+        }
+
+        if (initialPrice < orderPrice) {
                 console.log("pay Error: Insufficient amount");
                 return null;
             }
             order.paid = true;
             return await order.save();
-        }
+
         return null;
     }
 }

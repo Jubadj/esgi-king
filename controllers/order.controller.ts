@@ -25,7 +25,7 @@ export class OrderController {
                 customerName: orderBody.customerName,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
-                price: await OrderService.getInstance().calculatePrice(null, null),
+                price: await OrderService.getInstance().calculatePrice(orderBody.productList, orderBody.menuList),
                 mode: "Sur place", //TODO as enum
                 paid: false
             });
@@ -40,22 +40,37 @@ export class OrderController {
     async createOrderOnline(req: Request, res: Response) {
         const orderBody = req.body;
 
-        let menuProducts = [];
-
-        if (orderBody.menuList){
-            for (let i=0; i<orderBody.menuList.length; i++){
-                const menu = await SetMenuService.getInstance().getByName(orderBody.menuList[i]);
-                if (menu){
-                    menuProducts.push();
-                }
-            }
-        }
-
         // Verify if restaurant exist in DB
         const restaurant = RestaurantService.getInstance().getById(req.params.restaurant_id);
         if(restaurant === null ){
             res.status(400).end(); // 400 -> bad request
             return;
+        }
+
+        if (!orderBody.productList && !orderBody.menuList){
+            res.status(400).end(); // 400 -> bad request
+            return;
+        }
+
+        if(orderBody.productList){
+            const products = orderBody.productList;
+            for (let i=0; i<products.length; i++){
+                const product = await ProductService.getInstance().getByName(products[i]);
+                if(!product){
+                    res.status(400).end(); // 400 -> bad request
+                    return;
+                }
+            }
+        }
+        if(orderBody.menuList){
+            const menus = orderBody.menuList;
+            for (let i=0; i<menus.length; i++){
+                const menu = await SetMenuService.getInstance().getByName(menus[i]);
+                if(!menu){
+                    res.status(400).end(); // 400 -> bad request
+                    return;
+                }
+            }
         }
 
         // Get the user token
@@ -74,6 +89,7 @@ export class OrderController {
             return;
         }
         const token = parts[1];
+
         try {
             // Get customer user_id
             const user = await AuthService.getInstance().getUserFromToken(token);
@@ -89,7 +105,7 @@ export class OrderController {
                 customerName: user.firstName + " " + user.lastName,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
-                price: await OrderService.getInstance().calculatePrice(null, null),//TODO calculate price
+                price: await OrderService.getInstance().calculatePrice(orderBody.productList, orderBody.menuList),//TODO calculate price
                 mode: "A distance",
                 statusPreparation: StatusPreparation.TODO,
                 paid: false
