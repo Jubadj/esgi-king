@@ -1,4 +1,4 @@
-import {StatusPreparation} from "../utils/order.enum";
+import {Mode, StatusPreparation} from "../utils/order.enum";
 
 import express, {Router, Request, Response, RequestHandler} from "express";
 
@@ -26,7 +26,7 @@ export class OrderController {
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
                 price: await OrderService.getInstance().calculatePrice(null, null),
-                mode: "Sur place", //TODO as enum
+                mode: Mode.ONSITE,
                 paid: false
             });
             res.json(order);
@@ -90,7 +90,7 @@ export class OrderController {
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
                 price: await OrderService.getInstance().calculatePrice(null, null),//TODO calculate price
-                mode: "A distance",
+                mode: Mode.INDELIVERY,
                 statusPreparation: StatusPreparation.TODO,
                 paid: false
             });

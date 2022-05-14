@@ -1,5 +1,5 @@
 import {DiscountProps, OrderDocument, OrderModel, OrderProps} from "../models";
-import {StatusPreparation} from "../utils/order.enum";
+import {Mode, StatusPreparation} from "../utils/order.enum";
 import {discountEnum, promo} from "../utils/discount.enum";
 import {DiscountService} from "../services";
 
@@ -79,6 +79,12 @@ export class OrderService {
         if (props.paid !== undefined) {
             order.paid = props.paid;
         }
+        if (props.deliveryMan !== undefined) {
+            order.deliveryMan = props.deliveryMan;
+        }
+        if (props.preparer !== undefined) {
+            order.preparer = props.preparer;
+        }
         return await order.save();
     }
 
@@ -147,5 +153,34 @@ export class OrderService {
             return await order.save();
         }
         return null;
+    }
+
+    // TODO to test prepareOrder
+    async prepareOrder(orderId: string):  Promise<OrderDocument | null>{
+        const order = await OrderService.getInstance().getById(orderId);
+
+        if (!order){
+            return null;
+        }
+
+        if (order.mode == Mode.ONSITE){
+            order.statusPreparation = StatusPreparation.DONE;
+        }
+        else if (order.mode == Mode.INDELIVERY){
+            order.statusPreparation = StatusPreparation.TODELIVER;
+        }
+        return await order.save();
+    }
+    
+    // TODO to test deliverOrder
+    async deliverOrder(orderId: string):  Promise<OrderDocument | null>{
+        const order = await OrderService.getInstance().getById(orderId);
+
+        if (!order){
+            return null;
+        }
+
+        order.statusPreparation = StatusPreparation.DONE;
+        return await order.save();
     }
 }

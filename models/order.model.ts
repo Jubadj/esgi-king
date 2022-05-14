@@ -40,6 +40,14 @@ const orderSchema = new Schema({
         paid: {
             type: Schema.Types.Boolean,
             default: false
+        },
+        deliveryMan: {
+            type: Schema.Types.ObjectId,
+            ref:"user"
+        },
+        preparer: {
+            type: Schema.Types.ObjectId,
+            ref:"user"
         }
 },
     {
@@ -58,6 +66,8 @@ export interface OrderProps{
     mode: string;
     statusPreparation?: string;
     paid: boolean;
+    preparer?: null | UserDocument;
+    deliveryMan?: null | UserDocument;
 }
 
 export type OrderDocument = OrderProps & Document;
