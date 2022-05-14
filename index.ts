@@ -2,10 +2,12 @@ import {config} from "dotenv";
 config();
 
 import express from "express";
-import {AuthController, RestaurantController} from "./controllers";
+import {AuthController, ProductController, RestaurantController} from "./controllers";
 import mongoose, {Mongoose} from "mongoose";
 import {AdminController} from "./controllers/admin.controller";
 import {BigBossController} from "./controllers/bigBoss.controller";
+import {SetMenuController} from "./controllers/setMenu.controller";
+import {OrderController} from "./controllers/order.controller";
 
 async function startServer(): Promise<void> {
 
@@ -29,6 +31,15 @@ async function startServer(): Promise<void> {
 
     const bigBossController = new BigBossController();
     app.use('/bigBoss', bigBossController.buildRoutes()); // enregistrement d'un routeur
+
+    const productController = new ProductController();
+    app.use('/product', productController.buildRoutes()); // enregistrement d'un routeur
+
+    const setMenuController = new SetMenuController();
+    app.use('/setMenu', setMenuController.buildRoutes()); // enregistrement d'un routeur
+
+    const orderController = new OrderController();
+    app.use('/order', orderController.buildRoutes()); // enregistrement d'un routeur
 
     app.listen(process.env.PORT, function() {
         console.log("Server listening on port " + process.env.PORT);

@@ -1,0 +1,31 @@
+{
+  "name": "esgi-king",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "start": "node ./dist/index.js",
+    "heroku": "rq -rf heroku-app/dist && cp dist heroku-app/dist "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jubadj/esgi-king.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jubadj/esgi-king/issues"
+  },
+  "homepage": "https://github.com/Jubadj/esgi-king#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.23",
+    "typescript": "^4.6.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.10"
+  }
+}
