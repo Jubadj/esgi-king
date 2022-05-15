@@ -105,11 +105,11 @@ export class OrderService {
     async updateStatus(orderId: string, status: string): Promise<OrderDocument | null> {
         const order = await this.getById(orderId);
         if (!order) {
-            console.log("service problem order");
+            console.log("updateStatus Error: service problem order");
             return null;
         }
         if (status !== undefined) {
-            if (status !== StatusPreparation.TODO && status !== StatusPreparation.INPROGRESS && status !== StatusPreparation.DONE) {
+            if (status !== StatusPreparation.TODO && status !== StatusPreparation.DONE && status !== StatusPreparation.TODELIVER) {
                 console.log("updateStatus Error: wrong parameter");
                 return null;
             }
@@ -196,6 +196,10 @@ export class OrderService {
         const order = await OrderService.getInstance().getById(orderId);
 
         if (!order){
+            return null;
+        }
+        if (order.statusPreparation != StatusPreparation.TODELIVER){
+            console.log("deliver service Error: Order not prepared.")
             return null;
         }
 

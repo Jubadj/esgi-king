@@ -250,6 +250,7 @@ export class OrderController {
         }
         try {
             const order = await OrderService.getInstance().prepare(req.params.order_id);
+
             if(!order) {
                 console.log("prepareOrder error: order not found");
                 res.status(404).end();
@@ -290,7 +291,7 @@ export class OrderController {
 
             if(!order) {
                 console.log("deliverOrder error: order not found");
-                res.status(404).end();
+                res.status(400).end();
                 return;
             }
             order.deliveryMan = deliveryMan._id;
@@ -320,8 +321,8 @@ export class OrderController {
         router.put('/status/:order_id', canChangeOrderStatus(), express.json(), this.updateOrderStatus.bind(this));
         router.post('/pay/:order_id', isCustomer(), express.json(), this.payOrder.bind(this));
 
-        router.post('/prepare/:order_id', isPreparer(), express.json(), this.prepareOrder.bind(this));
-        router.post('/deliver/:order_id', isDeliveryMan(), express.json(), this.deliverOrder.bind(this));
+        router.post('/prepare/:order_id', isPreparer(), this.prepareOrder.bind(this));
+        router.post('/deliver/:order_id', isDeliveryMan(), this.deliverOrder.bind(this));
 
         return router;
     }

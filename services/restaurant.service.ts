@@ -45,6 +45,9 @@ export class RestaurantService {
         if(props.postalCode !== undefined) {
             restaurant.postalCode = props.postalCode;
         }
+        if(props.completeAdress !== undefined) {
+            restaurant.completeAdress = props.completeAdress;
+        }
         const res = await restaurant.save();
         return res;
     }

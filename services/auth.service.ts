@@ -80,4 +80,6 @@ export class AuthService {
         const res = await UserModel.deleteOne({_id: userId}).exec();
         return res.deletedCount === 1;
     }
+
+
 }
