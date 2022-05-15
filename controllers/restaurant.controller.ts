@@ -17,7 +17,7 @@ export class RestaurantController {
                 address: restaurantBody.address,
                 city: restaurantBody.city,
                 postalCode: restaurantBody.postalCode,
-                completeAdress: restaurantBody.completeAdress
+                completeAddress: restaurantBody.completeAdress
             });
             console.log("test2")
             res.json(restaurant);

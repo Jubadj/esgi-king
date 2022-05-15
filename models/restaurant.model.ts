@@ -27,9 +27,9 @@ const restaurantSchema = new Schema({
             type: Schema.Types.Number,
             required: true
         },
-        completeAdress: {
-            type: String,
-            required: [true, 'Please add an adress']
+        completeAddress: {
+            type: Schema.Types.String,
+            required: true
         },
 
         admin: {
@@ -38,14 +38,14 @@ const restaurantSchema = new Schema({
         },
         location: {
             type: {
-                type: String,
+                type: Schema.Types.String,
                 enum: ['Point']
             },
             coordinates: {
-                type: [Number],
+                type: [Schema.Types.Number],
                 index: '2dsphere'
             },
-            formattedAddress: String
+            formattedAddress: Schema.Types.String
         }
 
         //admin
@@ -69,8 +69,18 @@ const restaurantSchema = new Schema({
 
 // Geocoder & create location
 restaurantSchema.pre('save', async function (next){
-    const loc = await geocoder.geocoder(this.completeAdress);
+    const loc = await geocoder.geocoder(this.completeAddress);
     console.log(loc);
+
+    this.completeAddress = {
+        type: 'Point',
+        coordinates: [loc[0].longitude, loc[0].latitude],
+        formattedAddress: loc[0].formattedAddress
+    }
+
+    //Do not save address
+    this.completeAddress = undefined;
+    next();
 });
 
 export interface RestaurantProps {
@@ -78,13 +88,13 @@ export interface RestaurantProps {
     address: string;
     city: string;
     postalCode: number;
+    completeAddress: string;
     admin?: string; // admin._id
-    completeAdress: string;
+    location?: string;
 
     //preparers: Preparers[];
     //deliveryMen: DeliveryMen[];
 }
 
 export type RestaurantDocument = RestaurantProps & Document;
-
 export const RestaurantModel: Model<RestaurantDocument> = mongoose.model<RestaurantDocument>("Restaurant", restaurantSchema);

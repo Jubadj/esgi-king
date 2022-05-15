@@ -1,3 +1,4 @@
+const cors = require('cors');
 import {config} from "dotenv";
 config();
 
@@ -9,6 +10,7 @@ import {BigBossController} from "./controllers/bigBoss.controller";
 import {SetMenuController} from "./controllers/setMenu.controller";
 import {OrderController} from "./controllers/order.controller";
 
+
 async function startServer(): Promise<void> {
 
     const m: Mongoose = await mongoose.connect(process.env.MONGO_URI as string, {
@@ -19,6 +21,10 @@ async function startServer(): Promise<void> {
     });
 
     const app = express();
+
+    app.use(express.json());
+
+    app.use(cors());
 
     const authController = new AuthController();
     app.use('/auth', authController.buildRoutes())
