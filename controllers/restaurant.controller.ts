@@ -11,6 +11,7 @@ export class RestaurantController {
             return;
         }
         try {
+            console.log("test1")
             const restaurant = await RestaurantService.getInstance().createRestaurant({
                 name: restaurantBody.name,
                 address: restaurantBody.address,
@@ -18,6 +19,7 @@ export class RestaurantController {
                 postalCode: restaurantBody.postalCode,
                 completeAdress: restaurantBody.completeAdress
             });
+            console.log("test2")
             res.json(restaurant);
         } catch(err) {
             res.status(400).end(); // erreur des données utilisateurs
