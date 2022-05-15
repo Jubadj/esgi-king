@@ -8,6 +8,7 @@ import {
     UserModel
 } from "../models";
 import {SecurityUtils} from "../utils";
+import {ProductService} from "./product.service";
 export class SetMenuService {
     private static instance?: SetMenuService;
     public static getInstance(): SetMenuService {
@@ -32,8 +33,8 @@ export class SetMenuService {
         return SetMenuModel.findById(setMenuId).exec();
     }
 
-    async getByName(info: Pick<SetMenuProps, 'name'>): Promise<SetMenuDocument | null> {
-        return  SetMenuModel.findOne(info).exec();
+    async getByName(name: string): Promise<SetMenuDocument | null> {
+        return  SetMenuModel.findOne({"name": name}).exec();
     }
 
     async deleteById(setMenuId: string): Promise<boolean> {
@@ -55,8 +56,45 @@ export class SetMenuService {
         if(props.price !== undefined) {
             setMenu.price = props.price;
         }
-        const res = await setMenu.save();
-        return res;
+        return await setMenu.save();
+    }
+
+    async exist(menuName: string): Promise<boolean> {
+        const menu = await this.getByName(menuName);
+        if (!menu) {
+            return false;
+        }
+        return true;
+    }
+
+    async getProducts(menu: SetMenuDocument): Promise<ProductDocument[]>{
+        let productsList = [];
+        if (menu.product){
+            for (let i=0; i<menu.product.length; i++){
+                let product = await ProductService.getInstance().getById(menu.product[i]);
+                if (product){
+                    productsList.push(product);
+                }
+            }
+        }
+        return productsList;
+    }
+
+    async menuAvailable(menuName: string): Promise<boolean>{
+        const menu = await this.getByName(menuName);
+        if ( !menu ){
+            return false;
+        }
+        for (let i=0; menu.product?.length; i++){
+            const tmpProduct = await ProductService.getInstance().getByName(menu.product[i]);
+            if  (!tmpProduct){
+                return false;
+            }
+            if ( !await ProductService.getInstance().productAvailable(tmpProduct.name)){
+                return false;
+            }
+        }
+        return true;
     }
 
     // async addProductToMenu(menu_id: String){

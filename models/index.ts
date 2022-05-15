@@ -5,3 +5,4 @@ export * from './restaurant.model';
 export * from './product.model';
 export * from './order.model';
 export * from './setMenu.model';
+export * from './discount.model';

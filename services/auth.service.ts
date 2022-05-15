@@ -1,4 +1,4 @@
-import {UserDocument, UserModel, UserProps} from "../models";
+import {OrderModel, ProductDocument, ProductModel, UserDocument, UserModel, UserProps} from "../models";
 import {SecurityUtils} from "../utils";
 import {SessionDocument, SessionModel} from "../models/session.model";
 import {Session} from "inspector";
@@ -52,6 +52,10 @@ export class AuthService {
         return session;
     }
 
+    public async getById(userId: string): Promise<UserDocument | null> {
+        return UserModel.findById(userId).exec();
+    }
+
     public async getUserFrom(token: string): Promise<UserProps | null> {
         const session = await SessionModel.findOne({
            _id: token,
@@ -61,4 +65,21 @@ export class AuthService {
         }).populate("user").exec();
         return session ? session.user as UserProps : null;
     }
+
+    public async getUserFromToken(token: string): Promise<UserDocument | null> {
+        const session = await SessionModel.findOne({
+           _id: token,
+           expiration: {
+               $gte: new Date()
+           }
+        }).populate("user").exec();
+        return session ? session.user as UserDocument : null;
+    }
+
+    async deleteUserById(userId: string): Promise<boolean> {
+        const res = await UserModel.deleteOne({_id: userId}).exec();
+        return res.deletedCount === 1;
+    }
+
+
 }

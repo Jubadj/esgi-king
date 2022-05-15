@@ -6,7 +6,7 @@ export class RestaurantController {
 
     async createRestaurant(req: Request, res: Response) {
         const restaurantBody = req.body;
-        if(!restaurantBody.name || !restaurantBody.address || !restaurantBody.city || !restaurantBody.postalCode) {
+        if(!restaurantBody.name || !restaurantBody.address || !restaurantBody.city || !restaurantBody.postalCode|| !restaurantBody.completeAdress) {
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -15,10 +15,10 @@ export class RestaurantController {
                 name: restaurantBody.name,
                 address: restaurantBody.address,
                 city: restaurantBody.city,
-                postalCode: restaurantBody.postalCode
+                postalCode: restaurantBody.postalCode,
+                completeAdress: restaurantBody.completeAdress
             });
             res.json(restaurant);
-            console.log("ok");
         } catch(err) {
             res.status(400).end(); // erreur des données utilisateurs
             return;

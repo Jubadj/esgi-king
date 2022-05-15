@@ -1,54 +1,63 @@
 import express, {Router, Request, Response} from "express";
 import {ProductService, SetMenuService} from "../services";
 import {canSeeProduct, checkUserConnected, isAdmin, isBigBoss} from "../middlewares";
-import {menuEnum, productEnum} from "../enums";
+import {menuEnum} from "../utils";
+import {ProductController} from "./product.controller";
+
 
 export class SetMenuController {
 
-    async createNewMenu(req: Request, res: Response) {
+    async createSetMenu(req: Request, res: Response) {
         const setMenuBody = req.body;
         if(!setMenuBody.name || !setMenuBody.product || !setMenuBody.price) {
+            console.log("CreateSetMenu error: Parameters are missing.")
             res.status(400).end(); // 400 -> bad request
             return;
         }
         try {
-            const setMenu = await SetMenuService.getInstance().createSetMenu({
-                name: setMenuBody.name,
-                product: setMenuBody.product,
-                price: setMenuBody.price
-            });
-            res.json(setMenu);
+            const oldMenu = await SetMenuService.getInstance().getByName(setMenuBody.name);
+            if (oldMenu === undefined){
+                const setMenu = await SetMenuService.getInstance().createSetMenu({
+                    name: setMenuBody.name,
+                    product: setMenuBody.product,
+                    price: setMenuBody.price
+                });
+                res.json(setMenu);
+            }
+            console.log("CreateSetMenu error: This SetMenu already exist.")
+            res.status(400).end(); // erreur des données utilisateurs
+            return;
         } catch(err) {
             res.status(400).end(); // erreur des données utilisateurs
             return;
         }
     }
 
-    async createSetMenu(req: Request, res: Response) {
-        const menuBody = req.body;
-        const menuName = menuBody.name.toString();
-        // Verify the name is enterred in the request body
-        if(!menuName) {
-            res.status(400).end(); // 400 -> bad request
-            return;
-        }
-        try {
-            // Verify if the menu name exist in the menu enum
-            if(!(menuName in menuEnum)){
-                res.status(400).end(); // 400 -> bad request
-                return;
-            }
-            const setMenu = await SetMenuService.getInstance().createSetMenu({
-                name: menuName,
-                product: menuEnum[menuName as keyof typeof menuEnum].product,
-                price: menuEnum[menuName as keyof typeof menuEnum].price
-            });
-            res.json(setMenu);
-        } catch(err) {
-            res.status(400).end(); // erreur des données utilisateurs
-            return;
-        }
-    }
+    // async createSetMenu(req: Request, res: Response) {
+    //     const menuBody = req.body;
+    //     const menuName = menuBody.name.toString();
+    //     // Verify the name is enterred in the request body
+    //     if(!menuName) {
+    //         res.status(400).end(); // 400 -> bad request
+    //         return;
+    //     }
+    //     try {
+    //         // Verify if the menu name exist in the menu enum
+    //         if(!(menuName in menuEnum)){
+    //             res.status(400).end(); // 400 -> bad request
+    //             return;
+    //         }
+    //         const setMenu = await SetMenuService.getInstance().createSetMenu({
+    //             name: menuName,
+    //             product: menuEnum[menuName as keyof typeof menuEnum].product,
+    //             price: menuEnum[menuName as keyof typeof menuEnum].price
+    //         });
+    //         res.json(setMenu);
+    //     } catch(err) {
+    //         res.status(400).end(); // erreur des données utilisateurs
+    //         return;
+    //     }
+    // }
 
     async getAllSetMenus(req: Request, res: Response) {
         const setMenus = await SetMenuService.getInstance().getAll();

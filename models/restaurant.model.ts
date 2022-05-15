@@ -1,8 +1,10 @@
 import mongoose, {Schema, Document, Model} from "mongoose";
+
 import {UserProps} from "./user.model";
 import {AdminController} from "../controllers/admin.controller";
 import {AdminProps} from "./admin.model";
 
+const geocoder = require('../utils/geocoder')
 
 const restaurantSchema = new Schema({
 
@@ -25,12 +27,26 @@ const restaurantSchema = new Schema({
             type: Schema.Types.Number,
             required: true
         },
+        completeAdress: {
+            type: String,
+            required: [true, 'Please add an adress']
+        },
 
         admin: {
             type: Schema.Types.ObjectId,
             ref:"admin"
         },
-
+        location: {
+            type: {
+                type: String,
+                enum: ['Point']
+            },
+            coordinates: {
+                type: [Number],
+                index: '2dsphere'
+            },
+            formattedAddress: String
+        }
 
         //admin
         // preparers: [{
@@ -51,12 +67,19 @@ const restaurantSchema = new Schema({
         versionKey: false
     });
 
+// Geocoder & create location
+restaurantSchema.pre('save', async function (next){
+    const loc = await geocoder.geocoder(this.completeAdress);
+    console.log(loc);
+});
+
 export interface RestaurantProps {
     name: string;
     address: string;
     city: string;
     postalCode: number;
     admin?: string; // admin._id
+    completeAdress: string;
 
     //preparers: Preparers[];
     //deliveryMen: DeliveryMen[];
