@@ -18,8 +18,6 @@ export class BigBossController {
         }
     }
 
-    // TODO function to manage procduct and menu enums creating
-
     buildRoutes(): Router {
         const router = express.Router();
         router.put('/affectation/:admin_id/:restaurant_id', express.json(), this.affectAdminToRestaurant.bind(this));

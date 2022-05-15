@@ -43,11 +43,13 @@ export class OrderController {
         // Verify if restaurant exist in DB
         const restaurant = RestaurantService.getInstance().getById(req.params.restaurant_id);
         if(restaurant === null ){
+            console.log("createOrderOnline error: restaurant not found.");
             res.status(400).end(); // 400 -> bad request
             return;
         }
 
         if (!orderBody.productList && !orderBody.menuList){
+            console.log("createOrderOnline error: Not products or menu indicated.");
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -57,6 +59,7 @@ export class OrderController {
             for (let i=0; i<products.length; i++){
                 const product = await ProductService.getInstance().getByName(products[i]);
                 if(!product){
+                    console.log("createOrderOnline error: Product ", products[i], "do not exist.");
                     res.status(400).end(); // 400 -> bad request
                     return;
                 }
@@ -67,6 +70,7 @@ export class OrderController {
             for (let i=0; i<menus.length; i++){
                 const menu = await SetMenuService.getInstance().getByName(menus[i]);
                 if(!menu){
+                    console.log("createOrderOnline error: Product ", menus[i], "do not exist.");
                     res.status(400).end(); // 400 -> bad request
                     return;
                 }
@@ -105,7 +109,7 @@ export class OrderController {
                 customerName: user.firstName + " " + user.lastName,
                 productList: orderBody.productList,
                 menuList: orderBody.menuList,
-                price: await OrderService.getInstance().calculatePrice(orderBody.productList, orderBody.menuList),//TODO calculate price
+                price: await OrderService.getInstance().calculatePrice(orderBody.productList, orderBody.menuList),
                 mode: Mode.INDELIVERY,
                 statusPreparation: StatusPreparation.TODO,
                 paid: false
@@ -222,6 +226,81 @@ export class OrderController {
         }
     }
 
+    async prepareOrder(req: Request, res: Response){
+        // Get the user token
+        const authorization = req.headers['authorization'];
+        if(authorization === undefined) {
+            res.status(401).end();
+            return;
+        }
+        const parts = authorization.split(" ");
+        if(parts.length !== 2) {
+            res.status(401).end();
+            return;
+        }
+        if(parts[0] !== 'Bearer') {
+            res.status(401).end();
+            return;
+        }
+        const token = parts[1];
+        const preparer = await AuthService.getInstance().getUserFromToken(token);
+        if(preparer === null) {
+            res.status(401).end();
+            return;
+        }
+        try {
+            const order = await OrderService.getInstance().prepare(req.params.order_id);
+            if(!order) {
+                console.log("prepareOrder error: order not found");
+                res.status(404).end();
+                return;
+            }
+            order.preparer = preparer._id;
+            const result = await order.save();
+            res.json(result);
+        } catch (err) {
+            res.status(400).end();
+        }
+    }
+
+    async deliverOrder(req: Request, res: Response){
+        // Get the user token
+        const authorization = req.headers['authorization'];
+        if(authorization === undefined) {
+            res.status(401).end();
+            return;
+        }
+        const parts = authorization.split(" ");
+        if(parts.length !== 2) {
+            res.status(401).end();
+            return;
+        }
+        if(parts[0] !== 'Bearer') {
+            res.status(401).end();
+            return;
+        }
+        const token = parts[1];
+        const deliveryMan = await AuthService.getInstance().getUserFromToken(token);
+        if(deliveryMan === null) {
+            res.status(401).end();
+            return;
+        }
+        try {
+            const order = await OrderService.getInstance().deliver(req.params.order_id);
+
+            if(!order) {
+                console.log("deliverOrder error: order not found");
+                res.status(404).end();
+                return;
+            }
+            order.deliveryMan = deliveryMan._id;
+            const result = await order.save();
+            res.json(result);
+        } catch (err) {
+            res.status(400).end();
+        }
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
 
@@ -241,6 +320,9 @@ export class OrderController {
         router.put('/status/:order_id', canChangeOrderStatus(), express.json(), this.updateOrderStatus.bind(this));
         router.post('/pay/:order_id', isCustomer(), express.json(), this.payOrder.bind(this));
 
+        router.post('/prepare/:order_id', isPreparer(), express.json(), this.prepareOrder.bind(this));
+        router.post('/deliver/:order_id', isDeliveryMan(), express.json(), this.deliverOrder.bind(this));
+
         return router;
     }
 }
@@ -252,7 +334,7 @@ import {
     isCustomer,
     isPreparer,
     ROLE,
-    canSeeOrder, canChangeOrderStatus
+    canSeeOrder, canChangeOrderStatus, isDeliveryMan
 } from "../middlewares";
 
 import {AuthService, OrderService, ProductService, RestaurantService, SetMenuService} from "../services";

@@ -175,8 +175,7 @@ export class OrderService {
         return null;
     }
 
-    // TODO to test prepareOrder
-    async prepareOrder(orderId: string):  Promise<OrderDocument | null>{
+    async prepare(orderId: string):  Promise<OrderDocument | null>{
         const order = await OrderService.getInstance().getById(orderId);
 
         if (!order){
@@ -189,11 +188,11 @@ export class OrderService {
         else if (order.mode == Mode.INDELIVERY){
             order.statusPreparation = StatusPreparation.TODELIVER;
         }
-        return await order.save();
+        const res = await order.save();
+        return res;
     }
-    
-    // TODO to test deliverOrder
-    async deliverOrder(orderId: string):  Promise<OrderDocument | null>{
+
+    async deliver(orderId: string):  Promise<OrderDocument | null>{
         const order = await OrderService.getInstance().getById(orderId);
 
         if (!order){
