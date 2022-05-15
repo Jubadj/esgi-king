@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rmdir -rf dist && tsc",
+    "build": "rm -rf dist && tsc",
     "start": "node ./dist/index.js"
   },
   "repository": {
