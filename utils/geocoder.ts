@@ -1,11 +1,10 @@
-const NodeGeocoder = require('node-geocoder');
+import NodeGeocoder from 'node-geocoder';
 
-const options = {
-    provider: process.env.GEOCODER_PROVIDER,
+const options: NodeGeocoder.Options = {
+    provider: "mapquest",
     httpAdapter: 'https',
-    apiKey: process.env.GEOCODER_API_KEY, // for Mapquest, OpenCage, Google Premier
-    formatter: null // 'gpx', 'string', ...
+    apiKey: process.env.GEOCODER_API_KEY,
+    formatter: null
 };
 
 export const geocoder = NodeGeocoder(options);
-

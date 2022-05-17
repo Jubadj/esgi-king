@@ -54,5 +54,3 @@ async function startServer(): Promise<void> {
         console.log("Server listening on port " + process.env.PORT);
     });
 }
-
-startServer().catch(console.error);

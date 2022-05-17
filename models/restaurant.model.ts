@@ -3,19 +3,21 @@ import mongoose, {Schema, Document, Model} from "mongoose";
 import {UserProps} from "./user.model";
 import {AdminController} from "../controllers/admin.controller";
 import {AdminProps} from "./admin.model";
-
-const geocoder = require('../utils/geocoder')
+import NodeGeocoder from "node-geocoder";
+import {geocoder} from "../utils";
 
 const restaurantSchema = new Schema({
 
         name: {
             type: Schema.Types.String,
-            required: true
+            required: true,
+            unique: true
         },
 
         address: {
             type: Schema.Types.String,
-            required: true
+            required: true,
+            unique: true
         },
 
         city: {
@@ -27,7 +29,7 @@ const restaurantSchema = new Schema({
             type: Schema.Types.Number,
             required: true
         },
-        completeAddress: {
+        country: {
             type: Schema.Types.String,
             required: true
         },
@@ -67,34 +69,45 @@ const restaurantSchema = new Schema({
         versionKey: false
     });
 
-// Geocoder & create location
-restaurantSchema.pre('save', async function (next){
-    const loc = await geocoder.geocoder(this.completeAddress);
-    console.log(loc);
-
-    this.completeAddress = {
-        type: 'Point',
-        coordinates: [loc[0].longitude, loc[0].latitude],
-        formattedAddress: loc[0].formattedAddress
-    }
-
-    //Do not save address
-    this.completeAddress = undefined;
-    next();
-});
 
 export interface RestaurantProps {
     name: string;
     address: string;
     city: string;
     postalCode: number;
-    completeAddress: string;
+    country: string;
     admin?: string; // admin._id
-    location?: string;
+    //location?: string;
 
     //preparers: Preparers[];
     //deliveryMen: DeliveryMen[];
 }
+
+// Geocoder & create location
+restaurantSchema.pre('save', async function (next){
+    try {
+        const loc = await geocoder.geocode({
+            address: this.address,
+            country: this.country,
+            zipcode: this.postalCode
+        });
+
+        this.location = {
+            type: 'Point',
+            coordinates: [loc[0].longitude, loc[0].latitude],
+            formattedAddress: loc[0].formattedAddress
+        }
+        //const res = await geocoder.geocode(this.completeAddress); // JS
+        this.address = undefined;
+        this.country = undefined;
+        this.postalCode = undefined;
+        console.log(loc);
+    } catch (err) {
+        console.error(err);
+    }
+
+    next();
+});
 
 export type RestaurantDocument = RestaurantProps & Document;
 export const RestaurantModel: Model<RestaurantDocument> = mongoose.model<RestaurantDocument>("Restaurant", restaurantSchema);
