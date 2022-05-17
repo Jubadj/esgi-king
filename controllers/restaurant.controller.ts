@@ -1,25 +1,25 @@
 import express, {Router, Request, Response} from "express";
 import {RestaurantService} from "../services";
 import {checkUserConnected, isBigBoss} from "../middlewares";
+import {geocoder} from "../utils";
 
 export class RestaurantController {
 
     async createRestaurant(req: Request, res: Response) {
         const restaurantBody = req.body;
-        if(!restaurantBody.name || !restaurantBody.address || !restaurantBody.city || !restaurantBody.postalCode|| !restaurantBody.completeAdress) {
+        if(!restaurantBody.name || !restaurantBody.address || !restaurantBody.city || !restaurantBody.postalCode|| !restaurantBody.country) {
+            console.log("test0")
             res.status(400).end(); // 400 -> bad request
             return;
         }
         try {
-            console.log("test1")
             const restaurant = await RestaurantService.getInstance().createRestaurant({
                 name: restaurantBody.name,
                 address: restaurantBody.address,
                 city: restaurantBody.city,
                 postalCode: restaurantBody.postalCode,
-                completeAdress: restaurantBody.completeAdress
+                country: restaurantBody.country
             });
-            console.log("test2")
             res.json(restaurant);
         } catch(err) {
             res.status(400).end(); // erreur des données utilisateurs
