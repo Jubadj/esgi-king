@@ -6,3 +6,5 @@ export * from './product.model';
 export * from './order.model';
 export * from './setMenu.model';
 export * from './discount.model';
+export * from './messageClient.model';
+export * from './messageServer.model';
