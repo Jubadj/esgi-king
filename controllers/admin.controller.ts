@@ -7,7 +7,7 @@ export class AdminController {
     async createAdmin(req: Request, res: Response) {
         const adminBody = req.body;
         if(!adminBody.username) {
-            res.status(400).end(); // 400 -> bad request
+            res.status(400).end().json("Please enter a username in the body");
             return;
         }
         try {
@@ -16,9 +16,8 @@ export class AdminController {
                 restaurant: adminBody.restaurant,
             });
             res.json(admin);
-            console.log("ok");
         } catch(err) {
-            res.status(400).end(); // erreur des données utilisateurs
+            res.status(400).end().json("Create Admin error!"); // erreur des données utilisateurs
             return;
         }
     }
@@ -32,12 +31,12 @@ export class AdminController {
         try {
             const admin = await AdminService.getInstance().getById(req.params.admin_id);
             if(admin === null) {
-                res.status(404).end();
+                res.status(404).end().json("User not found!");
                 return;
             }
             res.json(admin);
         } catch(err) {
-            res.status(400).end();
+            res.status(400).end().json("getAdmin error!");
             return;
         }
     }
@@ -46,12 +45,12 @@ export class AdminController {
         try {
             const success = await AdminService.getInstance().deleteById(req.params.admin_id);
             if(success) {
-                res.status(204).end();
+                res.status(204).end().json("User deleted successfully!");
             } else {
-                res.status(404).end();
+                res.status(404).end().json("User delete failed!");
             }
         } catch(err) {
-            res.status(400).end();
+            res.status(400).end().json("User delete error!");
         }
     }
 
@@ -60,16 +59,14 @@ export class AdminController {
             const admin = await AdminService.getInstance()
                 .updateById(req.params.admin_id, req.body);
             if(!admin) {
-                res.status(404).end();
+                res.status(404).end().json("UpdateAdmin error: User not found");
                 return;
             }
             res.json(admin);
         } catch (err) {
-            res.status(400).end();
+            res.status(400).end().json("updateAdmin error!");
         }
     }
-
-
 
     buildRoutes(): Router {
         const router = express.Router();

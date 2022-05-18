@@ -1,22 +1,20 @@
 import {Mode, StatusPreparation} from "../utils/order.enum";
 
-import express, {Router, Request, Response, RequestHandler} from "express";
+import express, {Router, Request, Response} from "express";
 
 export class OrderController {
 
     async createOrderOffline(req: Request, res: Response) {
         const orderBody = req.body;
         if (!orderBody.customerName){
-            console.log("created order error: customerName is missing!");
-            res.status(400).end(); // 400 -> bad request
+            res.status(400).end().json("created order error: customerName is missing!"); // 400 -> bad request
             return;
         }
 
         const restaurantObj = await RestaurantService.getInstance().getById(req.params.restaurant_id);
         // Verify if restaurant exist in DB
         if(restaurantObj === null ){
-            console.log("created order error: Restaurant not found!");
-            res.status(400).end(); // 400 -> bad request
+            res.status(400).end().json("created order error: Restaurant not found!"); // 400 -> bad request
             return;
         }
         try {
@@ -31,8 +29,7 @@ export class OrderController {
             });
             res.json(order);
         } catch(err) {
-            console.log("created order !");
-            res.status(400).end(); // erreur des données utilisateurs
+            res.status(400).end().json("created order error!"); // erreur des données utilisateurs
             return;
         }
     }
@@ -43,14 +40,12 @@ export class OrderController {
         // Verify if restaurant exist in DB
         const restaurant = RestaurantService.getInstance().getById(req.params.restaurant_id);
         if(restaurant === null ){
-            console.log("createOrderOnline error: restaurant not found.");
-            res.status(400).end(); // 400 -> bad request
+            res.status(400).end().json("createOrderOnline error: restaurant not found."); // 400 -> bad request
             return;
         }
 
         if (!orderBody.productList && !orderBody.menuList){
-            console.log("createOrderOnline error: Not products or menu indicated.");
-            res.status(400).end(); // 400 -> bad request
+            res.status(400).end().json("createOrderOnline error: Not products or menu indicated."); // 400 -> bad request
             return;
         }
 
@@ -59,8 +54,7 @@ export class OrderController {
             for (let i=0; i<products.length; i++){
                 const product = await ProductService.getInstance().getByName(products[i]);
                 if(!product){
-                    console.log("createOrderOnline error: Product ", products[i], "do not exist.");
-                    res.status(400).end(); // 400 -> bad request
+                    res.status(400).end().json("createOrderOnline error: Product not found in DB"); // 400 -> bad request
                     return;
                 }
             }
@@ -68,10 +62,9 @@ export class OrderController {
         if(orderBody.menuList){
             const menus = orderBody.menuList;
             for (let i=0; i<menus.length; i++){
-                const menu = await SetMenuService.getInstance().getByName(menus[i]);
+                const menu = await MenuService.getInstance().getByName(menus[i]);
                 if(!menu){
-                    console.log("createOrderOnline error: Product ", menus[i], "do not exist.");
-                    res.status(400).end(); // 400 -> bad request
+                    res.status(400).end().json("createOrderOnline error: menu not found!"); // 400 -> bad request
                     return;
                 }
             }
@@ -116,7 +109,7 @@ export class OrderController {
             });
             res.json(order);
         } catch(err) {
-            res.status(400).end(); // erreur des données utilisateurs
+            res.status(400).end().json("createOrderOnline error"); // erreur des données utilisateurs
             return;
         }
     }
@@ -329,16 +322,10 @@ export class OrderController {
 }
 import {
     checkUserConnected,
-    canSeeProduct,
     isAdmin,
-    isBigBoss,
     isCustomer,
     isPreparer,
-    ROLE,
     canSeeOrder, canChangeOrderStatus, isDeliveryMan
 } from "../middlewares";
 
-import {AuthService, OrderService, ProductService, RestaurantService, SetMenuService} from "../services";
-import {SecurityUtils} from "../utils";
-import {AuthController} from "./auth.controller";
-import {SetMenuDocument} from "../models";
+import {AuthService, MenuService, OrderService, ProductService, RestaurantService} from "../services";

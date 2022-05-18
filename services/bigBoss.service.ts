@@ -1,5 +1,4 @@
-import {AdminDocument, AdminProps, RestaurantDocument, UserDocument, UserProps} from "../models";
-import {Request, request, Response} from "express";
+import {AdminDocument, RestaurantDocument} from "../models";
 import {AdminService} from "./admin.service";
 import {RestaurantService} from "../services";
 
@@ -17,6 +16,9 @@ export class BigBossService {
     private constructor() {
     }
 
+    /*
+    * Affect an admin user to restaurant
+    * */
     public async affectAdmin(adminId: string, restaurantId: string): Promise<[AdminDocument, RestaurantDocument] | null> {
         const admin = await AdminService.getInstance().getById(adminId);
         const restaurant = await RestaurantService.getInstance().getById(restaurantId);

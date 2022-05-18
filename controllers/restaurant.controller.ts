@@ -8,7 +8,6 @@ export class RestaurantController {
     async createRestaurant(req: Request, res: Response) {
         const restaurantBody = req.body;
         if(!restaurantBody.name || !restaurantBody.address || !restaurantBody.city || !restaurantBody.postalCode|| !restaurantBody.country) {
-            console.log("test0")
             res.status(400).end(); // 400 -> bad request
             return;
         }
@@ -78,7 +77,7 @@ export class RestaurantController {
 
         router.use(checkUserConnected());
         router.use(isBigBoss());
-        router.post('/', express.json(), this.createRestaurant.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.post('/', express.json(), this.createRestaurant.bind(this));
         router.get('/', this.getAllRestaurants.bind(this));
         router.get('/:restaurant_id', this.getRestaurant.bind(this));
         router.delete('/:restaurant_id', this.deleteRestaurant.bind(this));

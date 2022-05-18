@@ -52,6 +52,9 @@ export class ProductService {
         return res;
     }
 
+    /*
+    * Verify if a production exists in DB
+    * */
     async exist(productName:string): Promise<boolean> {
         const tmpProduct = await this.getByName(productName);
         if ( !tmpProduct ){
@@ -60,6 +63,9 @@ export class ProductService {
         return true;
     }
 
+    /*
+    * Verify if a product is in stock in DB
+    * */
     async productAvailable(productName:string): Promise<boolean>{
         const tmpProduct = await this.getByName(productName);
         if ( !tmpProduct ){
@@ -71,6 +77,9 @@ export class ProductService {
         return true;
     }
 
+    /*
+    * Decrement the number of a product in the DB
+    * */
     async countDecrease(productName: string): Promise<boolean>{
         const product = await this.getByName(productName);
         if ( product ){

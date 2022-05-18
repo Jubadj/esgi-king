@@ -1,5 +1,5 @@
-import {RestaurantDocument, RestaurantModel, RestaurantProps, UserDocument} from "../models";
-import {geocoder} from "../utils";
+import {RestaurantDocument, RestaurantModel, RestaurantProps} from "../models";
+
 export class RestaurantService {
     private static instance?: RestaurantService;
     public static getInstance(): RestaurantService {
@@ -49,9 +49,6 @@ export class RestaurantService {
         if(props.country !== undefined) {
             restaurant.country = props.country;
         }
-        const res = await restaurant.save();
-        return res;
+        return await restaurant.save();
     }
-
-
 }

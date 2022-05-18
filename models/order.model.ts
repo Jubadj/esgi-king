@@ -1,8 +1,7 @@
-import mongoose, {Schema, Document, Model} from "mongoose";
-import "./product.model"
-import {ProductProps} from "./product.model";
-import {UserDocument, UserProps} from "./user.model";
-import {RestaurantDocument, RestaurantProps} from "./restaurant.model";
+import mongoose, {Schema, Document} from "mongoose";
+import "./product.model";
+import {UserDocument} from "./user.model";
+import {RestaurantDocument} from "./restaurant.model";
 import {StatusPreparation} from "../utils/order.enum";
 
 const orderSchema = new Schema({

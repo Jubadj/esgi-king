@@ -1,7 +1,6 @@
-import {DiscountProps, OrderDocument, OrderModel, OrderProps} from "../models";
+import {OrderDocument, OrderModel, OrderProps} from "../models";
 import {Mode, StatusPreparation} from "../utils/order.enum";
-import {discountEnum} from "../utils/discount.enum";
-import {DiscountService, ProductService, SetMenuService} from "../services";
+import {DiscountService, MenuService, ProductService} from "../services";
 
 
 export class OrderService {
@@ -39,14 +38,15 @@ export class OrderService {
         return res.deletedCount === 1;
     }
 
-
+    /*
+    * Calculate the price of an order with its contains products
+    * */
     async calculatePrice(productList: null | string[], menuList: null | string[]) {
         let result = 0;
         if (productList !== null && productList !== []){
             for (let i = 0; i < productList?.length; i++) {
                 const product = await ProductService.getInstance().getByName(productList[i]);
                 if (product){
-                    console.log("on rentre dans la productList");
                     result += product.price;
                 }
             }
@@ -54,13 +54,12 @@ export class OrderService {
 
         if (menuList && menuList !== []){
             for (let i = 0; i < menuList?.length; i++) {
-                const menu = await SetMenuService.getInstance().getByName(menuList[i]);
+                const menu = await MenuService.getInstance().getByName(menuList[i]);
                 if (menu){
                     result += menu.price;
                 }
             }
         }
-        console.log("on retourne ici");
         return result;
     }
 
@@ -102,6 +101,9 @@ export class OrderService {
         return await order.save();
     }
 
+    /*
+    * Change the status of an order
+    * */
     async updateStatus(orderId: string, status: string): Promise<OrderDocument | null> {
         const order = await this.getById(orderId);
         if (!order) {
@@ -118,20 +120,7 @@ export class OrderService {
         }
         return null;
     }
-
-    async convert(code: string) : Promise<number | null> {
-        if(code !== undefined){
-            if (code !== "EURO5" && code !== "EURO10" && code !== "EURO15") {
-                return null;
-            }
-            if(discountEnum[code] === undefined){
-                return null;
-            }
-            return discountEnum[code].price;
-        }
-        return null;
-    }
-
+//TODO Comment
     async pay(orderId: string, initialPrice: number, discount : string | undefined): Promise<OrderDocument | null> {
 
         const order = await this.getById(orderId);
@@ -148,7 +137,7 @@ export class OrderService {
                 return null;
             }
             const orderPrice = order.price - (order.price * (promo.percent / 100));
-            // }else{
+            // }else{//TODO what is it for ?
             //     const orderPrice = order.price;
             // }
         }
@@ -171,10 +160,16 @@ export class OrderService {
             }
             order.paid = true;
             return await order.save();
-
+        //TODO Comment
         return null;
     }
 
+    /*
+    * Change the status of an order
+    *   to "TODELIVER" status for online orders
+    *   or "DONE" status for offline orders
+    *   if the order is "TODO" status
+    * */
     async prepare(orderId: string):  Promise<OrderDocument | null>{
         const order = await OrderService.getInstance().getById(orderId);
 
@@ -188,10 +183,14 @@ export class OrderService {
         else if (order.mode == Mode.INDELIVERY){
             order.statusPreparation = StatusPreparation.TODELIVER;
         }
-        const res = await order.save();
-        return res;
+        return await order.save();
     }
 
+    /*
+    * Change the status of an order
+    *   to "DONE" status
+    *   if the order is "TODELIVER" status
+    * */
     async deliver(orderId: string):  Promise<OrderDocument | null>{
         const order = await OrderService.getInstance().getById(orderId);
 

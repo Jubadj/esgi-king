@@ -1,7 +1,6 @@
-import {OrderModel, ProductDocument, ProductModel, UserDocument, UserModel, UserProps} from "../models";
+import {UserDocument, UserModel, UserProps} from "../models";
 import {SecurityUtils} from "../utils";
-import {SessionDocument, SessionModel} from "../models/session.model";
-import {Session} from "inspector";
+import {SessionDocument, SessionModel} from "../models";
 
 export class AuthService {
 
@@ -56,6 +55,9 @@ export class AuthService {
         return UserModel.findById(userId).exec();
     }
 
+    /*
+    * To get a user with his token
+    * */
     public async getUserFrom(token: string): Promise<UserProps | null> {
         const session = await SessionModel.findOne({
            _id: token,
@@ -80,6 +82,4 @@ export class AuthService {
         const res = await UserModel.deleteOne({_id: userId}).exec();
         return res.deletedCount === 1;
     }
-
-
 }

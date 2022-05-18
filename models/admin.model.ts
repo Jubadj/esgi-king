@@ -1,8 +1,4 @@
 import mongoose, {Schema, Document, Model} from "mongoose";
-import {UserProps} from "./user.model";
-import {RestaurantDocument, RestaurantProps} from "./restaurant.model";
-
-
 
 const adminSchema = new Schema({
     username: {

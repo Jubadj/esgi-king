@@ -97,7 +97,6 @@ restaurantSchema.pre('save', async function (next){
             coordinates: [loc[0].longitude, loc[0].latitude],
             formattedAddress: loc[0].formattedAddress
         }
-        //const res = await geocoder.geocode(this.completeAddress); // JS
         this.address = undefined;
         this.country = undefined;
         this.postalCode = undefined;
