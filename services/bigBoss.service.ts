@@ -19,17 +19,30 @@ export class BigBossService {
     /*
     * Affect an admin user to restaurant
     * */
-    public async affectAdmin(adminId: string, restaurantId: string): Promise<[AdminDocument, RestaurantDocument] | null> {
+    public async affectAdmin(adminId: string, restaurantId: string): Promise< RestaurantDocument| null> {
         const admin = await AdminService.getInstance().getById(adminId);
         const restaurant = await RestaurantService.getInstance().getById(restaurantId);
-
-        if(restaurant !== null && admin !== null){
+        console.log("admin restaurant");
+        if(restaurant === null){
+            console.log("affectAdmin error : restaurant not found");
+            return null;
+        }
+        if(admin === null){
+            console.log("affectAdmin error : admin not found");
+            return null;
+        }
+        try{
             restaurant.admin = adminId;
             admin.restaurant = restaurantId;
             await restaurant.save();
             await admin.save();
-            return [admin, restaurant];
+            return restaurant;
+        }catch(err){
+            console.log(err);
+            return null;
         }
-        return null;
+
+
+
     }
 }

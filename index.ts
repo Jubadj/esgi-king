@@ -1,5 +1,6 @@
 const cors = require('cors');
 import {config} from "dotenv";
+
 config();
 
 import express from "express";
@@ -12,7 +13,6 @@ import {OrderController} from "./controllers/order.controller";
 
 
 async function startServer(): Promise<void> {
-
     const m: Mongoose = await mongoose.connect(process.env.MONGO_URI as string, {
         auth: {
             username: process.env.MONGO_USER  as string,
@@ -41,8 +41,8 @@ async function startServer(): Promise<void> {
     const productController = new ProductController();
     app.use('/product', productController.buildRoutes());
 
-    const setMenuController = new MenuController();
-    app.use('/setMenu', setMenuController.buildRoutes());
+    const menuController = new MenuController();
+    app.use('/menu', menuController.buildRoutes());
 
     const orderController = new OrderController();
     app.use('/order', orderController.buildRoutes());
@@ -54,3 +54,6 @@ async function startServer(): Promise<void> {
         console.log("Server listening on port " + process.env.PORT);
     });
 }
+
+startServer().catch(console.error);
+

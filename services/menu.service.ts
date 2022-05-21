@@ -49,6 +49,16 @@ export class MenuService {
             menu.name = props.name;
         }
         if(props.product !== undefined) {
+            if(props.product){
+                const products = props.product;
+                for (let i=0; i<products.length; i++){
+                    const product = await ProductService.getInstance().getByName(products[i]);
+                    if(!product){
+                        console.log("createMenu error: Product not found in DB"); // 400 -> bad request
+                        return null;
+                    }
+                }
+            }
             menu.product = props.product;
         }
         if(props.price !== undefined) {

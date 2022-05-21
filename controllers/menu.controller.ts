@@ -1,19 +1,29 @@
 import express, {Router, Request, Response} from "express";
 import {canSeeProduct, checkUserConnected, isAdmin, isBigBoss} from "../middlewares";
-import {MenuService} from "../services";
+import {MenuService, ProductService} from "../services";
 
 export class MenuController {
 
     async createMenu(req: Request, res: Response) {
         const menuBody = req.body;
         if(!menuBody.name || !menuBody.product || !menuBody.price) {
-            console.log("CreateMenu error: Parameters are missing.")
-            res.status(400).end(); // 400 -> bad request
+            res.status(400).json("CreateMenu error: Parameters are missing."); // 400 -> bad request
             return;
+        }
+        //Verify that all products are valid
+        if(menuBody.product){
+            const products = menuBody.product;
+            for (let i=0; i<products.length; i++){
+                const product = await ProductService.getInstance().getByName(products[i]);
+                if(!product){
+                    res.status(400).json("createMenu error: Product not found in DB"); // 400 -> bad request
+                    return;
+                }
+            }
         }
         try {
             const oldMenu = await MenuService.getInstance().getByName(menuBody.name);
-            if (oldMenu === undefined){
+            if (oldMenu === null){
                 const menu = await MenuService.getInstance().createMenu({
                     name: menuBody.name,
                     product: menuBody.product,
@@ -21,11 +31,11 @@ export class MenuController {
                 });
                 res.json(menu);
             }
-            console.log("CreateMenu error: This Menu already exist.")
-            res.status(400).end(); // erreur des données utilisateurs
+
+            res.status(400).json("CreateMenu error: This Menu already exist."); // erreur des données utilisateurs
             return;
         } catch(err) {
-            res.status(400).end(); // erreur des données utilisateurs
+            res.status(400).json("CreateMenu error !"); // erreur des données utilisateurs
             return;
         }
     }
@@ -67,12 +77,12 @@ export class MenuController {
             const menu = await MenuService.getInstance()
                 .updateById(req.params.menu_id, req.body);
             if(!menu) {
-                res.status(404).end();
+                res.status(400).json("updateMenu error : Menu not find or product not valid !");
                 return;
             }
             res.json(menu);
         } catch (err) {
-            res.status(400).end();
+            res.status(400).json("updateMenu error");
         }
     }
 
@@ -80,11 +90,11 @@ export class MenuController {
         const router = express.Router();
 
         router.use(checkUserConnected());
-        router.post('/', express.json(), this.createMenu.bind(this), isAdmin());
-        router.get('/', this.getAllMenus.bind(this), canSeeProduct());
-        router.get('/:menu_id', this.getMenu.bind(this), canSeeProduct());
-        router.delete('/:menu_id', this.deleteMenu.bind(this), isAdmin());
-        router.put('/:menu_id', express.json(), this.updateMenu.bind(this), isAdmin());
+        router.post('/', isAdmin(),express.json(), this.createMenu.bind(this));
+        router.get('/',canSeeProduct(), this.getAllMenus.bind(this));
+        router.get('/:menu_id',canSeeProduct(), this.getMenu.bind(this));
+        router.delete('/:menu_id',isAdmin(), this.deleteMenu.bind(this));
+        router.put('/:menu_id',isAdmin(), express.json(), this.updateMenu.bind(this));
         return router;
     }
 }

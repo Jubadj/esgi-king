@@ -22,7 +22,7 @@ export function canSeeProduct(): RequestHandler {
         const token = parts[1];
         try {
             const user = await AuthService.getInstance().getUserFrom(token);
-            if(user === null || user.role !== ROLE.ADMIN|| user.role !== ROLE.CUSTOMER || user.role!== ROLE.PREPARER) {
+            if(user === null || (user.role !== ROLE.ADMIN && user.role !== ROLE.CUSTOMER && user.role!== ROLE.PREPARER)) {
                 res.status(401).end();
                 return;
             }
