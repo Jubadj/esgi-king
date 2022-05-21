@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "build": "rm -rf ./dist && npx tsc",
-    "heroku": "rm -rf heroku-app/dist heroku-app/package.json && cp -R dist heroku-app/dist && cp package.json heroku-app/package.json && cd heroku-app && git add . && git commit -m 'publish' && git push heroku master"
+    "heroku": "rm -rf heroku-app/dist heroku-app/package.json && cp -R dist heroku-app/dist && cp package.json heroku-app/package.json && cd heroku-app && git add . && git commit -m 'publish' && git push heroku main"
 
   },
   "repository": {
