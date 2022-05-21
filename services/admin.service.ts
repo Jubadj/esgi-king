@@ -25,7 +25,6 @@ export class AdminService {
         return AdminModel.find().exec();
     }
 
-
     async getById(adminId: string): Promise<AdminDocument | null> {
         return AdminModel.findById(adminId).exec();
     }
@@ -49,5 +48,4 @@ export class AdminService {
         const res = await admin.save();
         return res;
     }
-
 }

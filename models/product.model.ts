@@ -1,5 +1,4 @@
-import mongoose, {Schema, Document, Model} from "mongoose";
-
+import mongoose, {Schema, Document} from "mongoose";
 
 const productSchema = new Schema({
         name: {
@@ -8,10 +7,6 @@ const productSchema = new Schema({
             unique: true
         },
         weight: {
-            type: Schema.Types.Number,
-            required: true
-        },
-        count: {
             type: Schema.Types.Number,
             required: true
         },
@@ -29,7 +24,6 @@ const productSchema = new Schema({
 export interface ProductProps{
     name: string;
     weight: number;
-    count: number;
     price: number;
 }
 

@@ -7,7 +7,7 @@ export class DiscountController {
     async createDiscount(req: Request, res: Response) {
         const discountBody = req.body;
         if(!discountBody.code || !discountBody.expirationDate ) {
-            res.status(400).end(); // 400 -> bad request
+            res.status(400).json("Please enter the code and expirationDate fields in the body!"); // 400 -> bad request
             return;
         }
         try {
@@ -18,7 +18,7 @@ export class DiscountController {
             });
             res.json(discount);
         } catch(err) {
-            res.status(400).end();
+            res.status(400).json("createDiscount error : Already exists !");
             return;
         }
     }
@@ -32,12 +32,12 @@ export class DiscountController {
         try {
             const discount = await DiscountService.getInstance().getById(req.params.discount_id);
             if(discount === null) {
-                res.status(404).end();
+                res.status(404).json("discount not found in DB!");
                 return;
             }
             res.json(discount);
         } catch(err) {
-            res.status(400).end();
+            res.status(400).json("getDiscount error!");
             return;
         }
     }
@@ -46,12 +46,12 @@ export class DiscountController {
         try {
             const success = await DiscountService.getInstance().deleteById(req.params.discount_id);
             if(success) {
-                res.status(204).end();
+                res.status(204).json("discount deleted succesfully!");
             } else {
-                res.status(404).end();
+                res.status(404).json("discount delete failed");
             }
         } catch(err) {
-            res.status(400).end();
+            res.status(400).json("discount delete error");
         }
     }
 
@@ -60,12 +60,12 @@ export class DiscountController {
             const discount = await DiscountService.getInstance()
                 .updateById(req.params.discount_id, req.body);
             if(!discount) {
-                res.status(404).end();
+                res.status(404).json("discount not found in DB!");
                 return;
             }
             res.json(discount);
         } catch (err) {
-            res.status(400).end();
+            res.status(400).json("discount error");
         }
     }
 
@@ -73,12 +73,11 @@ export class DiscountController {
         const router = express.Router();
 
         router.use(checkUserConnected());
-        router.use(isBigBoss());
-        router.post('/', express.json(), this.createDiscount.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.post('/', isAdmin(),express.json(), this.createDiscount.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
         router.get('/', this.getAllDiscounts.bind(this));
         router.get('/:discount_id', this.getDiscount.bind(this));
-        router.delete('/:discount_id', this.deleteDiscount.bind(this));
-        router.put('/:discount_id', express.json(), this.updateDiscount.bind(this));
+        router.delete('/:discount_id', isAdmin(), this.deleteDiscount.bind(this));
+        router.put('/:discount_id', isAdmin(), express.json(), this.updateDiscount.bind(this));
         return router;
     }
 }

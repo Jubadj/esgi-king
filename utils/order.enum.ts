@@ -1,8 +1,7 @@
 export enum StatusPreparation {
     DONE = 'DONE',
     TODELIVER = 'TODELIVER',
-    TODO = 'TODO',
-    INPROGRESS = 'INPROGRESS'
+    TODO = 'TODO'
 }
 
 export enum Mode{

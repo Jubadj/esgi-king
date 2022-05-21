@@ -1,13 +1,14 @@
 import express, {Router, Request, Response} from "express";
 import {RestaurantService} from "../services";
 import {checkUserConnected, isBigBoss} from "../middlewares";
+import {geocoder} from "../utils";
 
 export class RestaurantController {
 
     async createRestaurant(req: Request, res: Response) {
         const restaurantBody = req.body;
-        if(!restaurantBody.name || !restaurantBody.address || !restaurantBody.city || !restaurantBody.postalCode) {
-            res.status(400).end(); // 400 -> bad request
+        if(!restaurantBody.name || !restaurantBody.address || !restaurantBody.city || !restaurantBody.postalCode|| !restaurantBody.country) {
+            res.status(400).json("createRestaurant error : Parameters are missing !"); // 400 -> bad request
             return;
         }
         try {
@@ -15,12 +16,12 @@ export class RestaurantController {
                 name: restaurantBody.name,
                 address: restaurantBody.address,
                 city: restaurantBody.city,
-                postalCode: restaurantBody.postalCode
+                postalCode: restaurantBody.postalCode,
+                country: restaurantBody.country
             });
             res.json(restaurant);
-            console.log("ok");
         } catch(err) {
-            res.status(400).end(); // erreur des données utilisateurs
+            res.status(400).json("creatRestaurant error !"); // erreur des données utilisateurs
             return;
         }
     }
@@ -76,7 +77,7 @@ export class RestaurantController {
 
         router.use(checkUserConnected());
         router.use(isBigBoss());
-        router.post('/', express.json(), this.createRestaurant.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
+        router.post('/', express.json(), this.createRestaurant.bind(this));
         router.get('/', this.getAllRestaurants.bind(this));
         router.get('/:restaurant_id', this.getRestaurant.bind(this));
         router.delete('/:restaurant_id', this.deleteRestaurant.bind(this));

@@ -1,8 +1,7 @@
-import mongoose, {Schema, Document, Model} from "mongoose";
-import {ProductProps} from "./product.model";
+import mongoose, {Schema, Document} from "mongoose";
 
 
-const setMenuSchema = new Schema({
+const menuSchema = new Schema({
         name: {
             type: Schema.Types.String,
             required: true
@@ -17,17 +16,17 @@ const setMenuSchema = new Schema({
         }
     },
     {
-        collection: "setMenu",
+        collection: "menu",
         timestamps: true,
         versionKey: false
     });
 
-export interface SetMenuProps{
+export interface MenuProps{
     name: string;
     product: null | string[];
     price: number;
 }
 
-export type SetMenuDocument = SetMenuProps & Document;
+export type MenuDocument = MenuProps & Document;
 
-export const SetMenuModel = mongoose.model<SetMenuDocument>("SetMenu", setMenuSchema);
+export const MenuModel = mongoose.model<MenuDocument>("Menu", menuSchema);

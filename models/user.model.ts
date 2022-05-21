@@ -1,7 +1,6 @@
 import mongoose, {Schema, Document, Model} from "mongoose";
 import {SessionProps} from "./session.model";
 
-
 const userSchema = new Schema({
     login: {
         type: Schema.Types.String,

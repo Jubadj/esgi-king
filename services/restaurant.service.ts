@@ -1,4 +1,5 @@
 import {RestaurantDocument, RestaurantModel, RestaurantProps} from "../models";
+
 export class RestaurantService {
     private static instance?: RestaurantService;
     public static getInstance(): RestaurantService {
@@ -45,7 +46,9 @@ export class RestaurantService {
         if(props.postalCode !== undefined) {
             restaurant.postalCode = props.postalCode;
         }
-        const res = await restaurant.save();
-        return res;
+        if(props.country !== undefined) {
+            restaurant.country = props.country;
+        }
+        return await restaurant.save();
     }
 }

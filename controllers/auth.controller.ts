@@ -8,6 +8,10 @@ import {AdminController} from "./admin.controller";
 export class AuthController {
 
     async createUser(req: Request, res: Response) {
+        if(req.body.role != ROLE.BIGBOSS && req.body.role != ROLE.ADMIN &&  req.body.role != ROLE.CUSTOMER &&  req.body.role != ROLE.PREPARER &&  req.body.role != ROLE.DELIVERYMAN){
+            res.status(400).json("parameter ROLE is wrong !");
+        }
+
         try {
             const user = await AuthService.getInstance().subscribeUser({
                 login: req.body.login,
