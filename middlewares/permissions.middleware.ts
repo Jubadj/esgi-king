@@ -50,17 +50,12 @@ export function canSeeOrder(): RequestHandler {
             const user = await AuthService.getInstance().getUserFrom(token);
             const order = await OrderService.getInstance().getById(req.params.order_id);
             if (user === null || order===null){
-                console.log("Order or user problem");
-                res.status(401).end();
+                res.status(401).json("Order or user problem");
                 return;
             }
             if (user.role === ROLE.CUSTOMER){
-                console.log(user._id);
-                console.log(order.customer?._id);
-
                 if (!order.customer?._id.equals(user._id)){
-                    console.log("This is not your order ;) : Incorrect customer id");
-                    res.status(401).end();
+                    res.status(401).json("This is not your order ;) : Incorrect customer id");
                     return;
                 }
             }
@@ -87,13 +82,11 @@ export function canChangeOrderStatus(): RequestHandler {
             const user = await AuthService.getInstance().getUserFrom(token);
             const order = await OrderService.getInstance().getById(req.params.order_id);
             if (user === null || order === null) {
-                console.log("Order or user problem");
-                res.status(401).end();
+                res.status(401).json("Order or user problem");
                 return;
             }
             if (user.role !== ROLE.PREPARER) {
-                console.log("user is not allowed to change order's status !");
-                res.status(401).end();
+                res.status(401).json("user is not allowed to change order's status !");
                 return;
             }
             next();

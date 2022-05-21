@@ -7,30 +7,24 @@ export class ProductController {
 
     async createProduct(req: Request, res: Response) {
         const productBody = req.body;
-        if(!productBody.name || !productBody.weight || !productBody.count || !productBody.price) {
-            res.status(400).end().json("Please enter all fiels (name, weight, count, price)"); // 400 -> bad request
+        if(!productBody.name || !productBody.weight || !productBody.price) {
+            res.status(400).json("Please enter all fiels (name, weight, count, price)"); // 400 -> bad request
             return;
         }
         try {
             const oldProduct = await ProductService.getInstance().getByName(productBody.name);
-            if (oldProduct === undefined){
+            if (oldProduct === null){
                 const product = await ProductService.getInstance().createProduct({
                     name: productBody.name,
                     weight: productBody.weight,
-                    count: productBody.count,
                     price: productBody.price
                 });
                 res.json(product);
             }
-            if (oldProduct !== null && oldProduct?.count !==undefined && this.equalsProduct(oldProduct, productBody) ){
-                oldProduct.count += 1;
-                await oldProduct.save();
-                res.json(oldProduct);
-            }
-            res.status(400).end(); // erreur des données utilisateurs
+            res.status(400).json("createProduct error : Product already exists !"); // erreur des données utilisateurs
             return;
         } catch(err) {
-            res.status(400).end(); // erreur des données utilisateurs
+            res.status(400).json("createProduct error !"); // erreur des données utilisateurs
             return;
         }
     }
@@ -65,9 +59,9 @@ export class ProductController {
         try {
             const success = await ProductService.getInstance().deleteById(req.params.product_id);
             if(success) {
-                res.status(204).end().json("Product deleted succesfully");
+                res.status(204).json("Product deleted succesfully");
             } else {
-                res.status(404).end().json("Product delete failed");
+                res.status(404).json("Product delete failed");
             }
         } catch(err) {
             res.status(400).end();
@@ -91,11 +85,11 @@ export class ProductController {
     buildRoutes(): Router {
         const router = express.Router();
         router.use(checkUserConnected());
-        router.post('/', express.json(), this.createProduct.bind(this), isAdmin());
-        router.get('/', this.getAllProducts.bind(this), canSeeProduct());
-        router.get('/:product_id', this.getProduct.bind(this), canSeeProduct());
-        router.delete('/:product_id', this.deleteProduct.bind(this), isAdmin());
-        router.put('/:product_id', express.json(), this.updateProduct.bind(this), isAdmin());
+        router.post('/',isAdmin(), express.json(), this.createProduct.bind(this));
+        router.get('/', canSeeProduct(),this.getAllProducts.bind(this));
+        router.get('/:product_id', canSeeProduct(), this.getProduct.bind(this));
+        router.delete('/:product_id',isAdmin(), this.deleteProduct.bind(this));
+        router.put('/:product_id',isAdmin(), express.json(), this.updateProduct.bind(this));
         return router;
     }
 }

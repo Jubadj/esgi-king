@@ -122,27 +122,21 @@ export class OrderService {
     }
 //TODO Comment
     async pay(orderId: string, initialPrice: number, discount : string | undefined): Promise<OrderDocument | null> {
-
         const order = await this.getById(orderId);
         if (!order) {
             console.log("pay error: order do not exist.");
             return null;
         }
 
+        let orderPrice = order.price;
         if(discount) {
             const promo = await DiscountService.getInstance().getByCode(discount);
-
             if (!promo) {
                 console.log("pay error: discount code not found");
                 return null;
             }
-            const orderPrice = order.price - (order.price * (promo.percent / 100));
-            // }else{//TODO what is it for ?
-            //     const orderPrice = order.price;
-            // }
+             orderPrice = order.price - (order.price * (promo.percent / 100));
         }
-
-        const orderPrice = initialPrice;
 
         if(order.paid){
             console.log("pay error: order already paid");
@@ -150,7 +144,7 @@ export class OrderService {
         }
 
         if (!initialPrice) {
-            console.log("pay error: order already paid");
+            console.log("pay error: payment not found !");
             return null;
         }
 
@@ -160,7 +154,6 @@ export class OrderService {
             }
             order.paid = true;
             return await order.save();
-        //TODO Comment
         return null;
     }
 

@@ -88,21 +88,21 @@ export class MenuService {
         return productsList;
     }
 
-    async menuAvailable(menuName: string): Promise<boolean>{
-        const menu = await this.getByName(menuName);
-        if ( !menu ){
-            return false;
-        }
-        for (let i=0; menu.product?.length; i++){
-            const tmpProduct = await ProductService.getInstance().getByName(menu.product[i]);
-            if  (!tmpProduct){
-                return false;
-            }
-            if ( !await ProductService.getInstance().productAvailable(tmpProduct.name)){
-                return false;
-            }
-        }
-        return true;
-    }
+    // async menuAvailable(menuName: string): Promise<boolean>{
+    //     const menu = await this.getByName(menuName);
+    //     if ( !menu ){
+    //         return false;
+    //     }
+    //     for (let i=0; menu.product?.length; i++){
+    //         const tmpProduct = await ProductService.getInstance().getByName(menu.product[i]);
+    //         if  (!tmpProduct){
+    //             return false;
+    //         }
+    //         if ( !await ProductService.getInstance().productAvailable(tmpProduct.name)){
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
 }

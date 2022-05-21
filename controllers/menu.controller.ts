@@ -77,7 +77,7 @@ export class MenuController {
             const menu = await MenuService.getInstance()
                 .updateById(req.params.menu_id, req.body);
             if(!menu) {
-                res.status(400).json("updateMenu error : Menu not find or product not valid !");
+                res.status(400).json("updateMenu error : Menu not found or product not valid !");
                 return;
             }
             res.json(menu);

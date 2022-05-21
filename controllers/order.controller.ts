@@ -7,14 +7,41 @@ export class OrderController {
     async createOrderOffline(req: Request, res: Response) {
         const orderBody = req.body;
         if (!orderBody.customerName){
-            res.status(400).end().json("created order error: customerName is missing!"); // 400 -> bad request
+            res.status(400).json("created order error: customerName is missing!"); // 400 -> bad request
             return;
         }
 
+        if (!orderBody.productList && !orderBody.menuList){
+            res.status(400).json("createOrderOffline error: Not products or menu indicated."); // 400 -> bad request
+            return;
+        }
+
+        if(orderBody.productList){
+            const products = orderBody.productList;
+            for (let i=0; i<products.length; i++){
+                const product = await ProductService.getInstance().getByName(products[i]);
+                if(!product){
+                    res.status(400).json("createOrderOffline error: Product not found in DB"); // 400 -> bad request
+                    return;
+                }
+            }
+        }
+        if(orderBody.menuList){
+            const menus = orderBody.menuList;
+            for (let i=0; i<menus.length; i++){
+                const menu = await MenuService.getInstance().getByName(menus[i]);
+                if(!menu){
+                    res.status(400).json("createOrderOffline error: menu not found!"); // 400 -> bad request
+                    return;
+                }
+            }
+        }
+
         const restaurantObj = await RestaurantService.getInstance().getById(req.params.restaurant_id);
+
         // Verify if restaurant exist in DB
         if(restaurantObj === null ){
-            res.status(400).end().json("created order error: Restaurant not found!"); // 400 -> bad request
+            res.status(400).json("created order error: Restaurant not found!"); // 400 -> bad request
             return;
         }
         try {
@@ -29,7 +56,7 @@ export class OrderController {
             });
             res.json(order);
         } catch(err) {
-            res.status(400).end().json("created order error!"); // erreur des données utilisateurs
+            res.status(400).json("created order error!"); // erreur des données utilisateurs
             return;
         }
     }
@@ -40,12 +67,12 @@ export class OrderController {
         // Verify if restaurant exist in DB
         const restaurant = RestaurantService.getInstance().getById(req.params.restaurant_id);
         if(restaurant === null ){
-            res.status(400).end().json("createOrderOnline error: restaurant not found."); // 400 -> bad request
+            res.status(400).json("createOrderOnline error: restaurant not found."); // 400 -> bad request
             return;
         }
 
         if (!orderBody.productList && !orderBody.menuList){
-            res.status(400).end().json("createOrderOnline error: Not products or menu indicated."); // 400 -> bad request
+            res.status(400).json("createOrderOnline error: Not products or menu indicated."); // 400 -> bad request
             return;
         }
 
@@ -54,7 +81,7 @@ export class OrderController {
             for (let i=0; i<products.length; i++){
                 const product = await ProductService.getInstance().getByName(products[i]);
                 if(!product){
-                    res.status(400).end().json("createOrderOnline error: Product not found in DB"); // 400 -> bad request
+                    res.status(400).json("createOrderOnline error: Product not found in DB"); // 400 -> bad request
                     return;
                 }
             }
@@ -64,7 +91,7 @@ export class OrderController {
             for (let i=0; i<menus.length; i++){
                 const menu = await MenuService.getInstance().getByName(menus[i]);
                 if(!menu){
-                    res.status(400).end().json("createOrderOnline error: menu not found!"); // 400 -> bad request
+                    res.status(400).json("createOrderOnline error: menu not found!"); // 400 -> bad request
                     return;
                 }
             }
@@ -109,7 +136,7 @@ export class OrderController {
             });
             res.json(order);
         } catch(err) {
-            res.status(400).end().json("createOrderOnline error"); // erreur des données utilisateurs
+            res.status(400).json("createOrderOnline error"); // erreur des données utilisateurs
             return;
         }
     }
@@ -210,7 +237,7 @@ export class OrderController {
 
             if(!order) {
                 console.log("problem with order");
-                res.status(404).end();
+                res.status(400).json("payOrder error : problem with order !");
                 return;
             }
             res.json(order);
@@ -301,9 +328,10 @@ export class OrderController {
         //Offline Order
         router.post('/offline/:restaurant_id', express.json(), this.createOrderOffline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
         router.use(checkUserConnected());
+
         // Online order
         router.post('/online/:restaurant_id', isCustomer(), express.json(), this.createOrderOnline.bind(this)); // permet de forcer le this lors de l'appel de la fonction sayHello
-        router.get('/allOrders', isAdmin(), this.getAllOrders.bind(this));
+        router.get('/', isAdmin(), this.getAllOrders.bind(this));
 
         router.get('/historyOrder', isCustomer(), this.getHistoryOrders.bind(this));
         router.get('/:order_id', canSeeOrder(), this.getOrder.bind(this));

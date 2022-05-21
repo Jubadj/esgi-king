@@ -10,10 +10,6 @@ const productSchema = new Schema({
             type: Schema.Types.Number,
             required: true
         },
-        count: {
-            type: Schema.Types.Number,
-            required: true
-        },
         price: {
             type: Schema.Types.Number,
             required: true
@@ -28,7 +24,6 @@ const productSchema = new Schema({
 export interface ProductProps{
     name: string;
     weight: number;
-    count: number;
     price: number;
 }
 

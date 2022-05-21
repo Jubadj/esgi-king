@@ -42,9 +42,9 @@ export class ProductService {
         if(props.weight !== undefined) {
             product.weight = props.weight;
         }
-        if(props.count !== undefined) {
-            product.count = props.count;
-        }
+        // if(props.count !== undefined) {
+        //     product.count = props.count;
+        // }
         if(props.price !== undefined) {
             product.price = props.price;
         }
@@ -63,19 +63,19 @@ export class ProductService {
         return true;
     }
 
-    /*
-    * Verify if a product is in stock in DB
-    * */
-    async productAvailable(productName:string): Promise<boolean>{
-        const tmpProduct = await this.getByName(productName);
-        if ( !tmpProduct ){
-            return false;
-        }
-        else if  (tmpProduct.count<=0){
-            return false;
-        }
-        return true;
-    }
+    // /*
+    // * Verify if a product is in stock in DB
+    // * */
+    // async productAvailable(productName:string): Promise<boolean>{
+    //     const tmpProduct = await this.getByName(productName);
+    //     if ( !tmpProduct ){
+    //         return false;
+    //     }
+    //     else if  (tmpProduct.count<=0){
+    //         return false;
+    //     }
+    //     return true;
+    // }
 
     /*
     * Decrement the number of a product in the DB
@@ -83,7 +83,6 @@ export class ProductService {
     async countDecrease(productName: string): Promise<boolean>{
         const product = await this.getByName(productName);
         if ( product ){
-            product.count -= 1;
             await product.save();
             return true;
         }
