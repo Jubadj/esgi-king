@@ -9,7 +9,7 @@ export class AuthController {
 
     async createUser(req: Request, res: Response) {
         if(req.body.role != ROLE.BIGBOSS && req.body.role != ROLE.ADMIN &&  req.body.role != ROLE.CUSTOMER &&  req.body.role != ROLE.PREPARER &&  req.body.role != ROLE.DELIVERYMAN){
-            res.status(400).json("parameter ROLE is wrong !").end();
+            res.status(400).end();
         }
 
         try {
@@ -27,7 +27,7 @@ export class AuthController {
             }
             res.json(user);
         } catch(err) {
-            res.status(400).end().end();
+            res.status(400).end();
         }
     }
 

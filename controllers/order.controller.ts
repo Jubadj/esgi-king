@@ -7,12 +7,12 @@ export class OrderController {
     async createOrderOffline(req: Request, res: Response) {
         const orderBody = req.body;
         if (!orderBody.customerName){
-            res.status(400).json("created order error: customerName is missing!").end(); // 400 -> bad request
+            res.status(400).end(); // 400 -> bad request
             return;
         }
 
         if (!orderBody.productList && !orderBody.menuList){
-            res.status(400).json("createOrderOffline error: Not products or menu indicated.").end(); // 400 -> bad request
+            res.status(400).end(); // 400 -> bad request
             return;
         }
 
@@ -21,7 +21,7 @@ export class OrderController {
             for (let i=0; i<products.length; i++){
                 const product = await ProductService.getInstance().getByName(products[i]);
                 if(!product){
-                    res.status(400).json("createOrderOffline error: Product not found in DB").end(); // 400 -> bad request
+                    res.status(400).end(); // 400 -> bad request
                     return;
                 }
             }
@@ -31,7 +31,7 @@ export class OrderController {
             for (let i=0; i<menus.length; i++){
                 const menu = await MenuService.getInstance().getByName(menus[i]);
                 if(!menu){
-                    res.status(400).json("createOrderOffline error: menu not found!").end(); // 400 -> bad request
+                    res.status(400).end(); // 400 -> bad request
                     return;
                 }
             }

@@ -9,11 +9,11 @@ export class BigBossController {
         try {
             const success = await BigBossService.getInstance().affectAdmin(req.params.admin_id, req.params.restaurant_id);
             if(!success){
-                res.status(404).json("Affectation failed").end();
+                res.status(404).end();
             }
             res.json(success);
         } catch(err) {
-            res.status(400).json("affectAdminToRestaurant error!").end();
+            res.status(400).end();
         }
     }
 

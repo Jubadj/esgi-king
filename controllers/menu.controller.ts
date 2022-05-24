@@ -7,7 +7,7 @@ export class MenuController {
     async createMenu(req: Request, res: Response) {
         const menuBody = req.body;
         if(!menuBody.name || !menuBody.product || !menuBody.price) {
-            res.status(400).json("CreateMenu error: Parameters are missing.").end(); // 400 -> bad request
+            res.status(400).end(); // 400 -> bad request
             return;
         }
         //Verify that all products are valid
@@ -16,7 +16,7 @@ export class MenuController {
             for (let i=0; i<products.length; i++){
                 const product = await ProductService.getInstance().getByName(products[i]);
                 if(!product){
-                    res.status(400).json("createMenu error: Product not found in DB").end(); // 400 -> bad request
+                    res.status(400).end(); // 400 -> bad request
                     return;
                 }
             }
@@ -32,10 +32,10 @@ export class MenuController {
                 res.json(menu);
             }
 
-            res.status(400).json("CreateMenu error: This Menu already exist.").end(); // erreur des données utilisateurs
+            res.status(400).end(); // erreur des données utilisateurs
             return;
         } catch(err) {
-            res.status(400).json("CreateMenu error !").end(); // erreur des données utilisateurs
+            res.status(400).end(); // erreur des données utilisateurs
             return;
         }
     }
@@ -77,12 +77,12 @@ export class MenuController {
             const menu = await MenuService.getInstance()
                 .updateById(req.params.menu_id, req.body);
             if(!menu) {
-                res.status(400).json("updateMenu error : Menu not found or product not valid !").end();
+                res.status(400).end();
                 return;
             }
             res.json(menu);
         } catch (err) {
-            res.status(400).json("updateMenu error").end();
+            res.status(400).end();
         }
     }
 

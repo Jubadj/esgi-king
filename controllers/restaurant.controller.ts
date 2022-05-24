@@ -8,7 +8,7 @@ export class RestaurantController {
     async createRestaurant(req: Request, res: Response) {
         const restaurantBody = req.body;
         if(!restaurantBody.name || !restaurantBody.address || !restaurantBody.city || !restaurantBody.postalCode|| !restaurantBody.country) {
-            res.status(400).json("createRestaurant error : Parameters are missing !").end(); // 400 -> bad request
+            res.status(400).end(); // 400 -> bad request
             return;
         }
         try {
@@ -21,7 +21,7 @@ export class RestaurantController {
             });
             res.json(restaurant);
         } catch(err) {
-            res.status(400).json("creatRestaurant error !").end(); // erreur des données utilisateurs
+            res.status(400).end(); // erreur des données utilisateurs
             return;
         }
     }
