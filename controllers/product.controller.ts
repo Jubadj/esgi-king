@@ -8,7 +8,7 @@ export class ProductController {
     async createProduct(req: Request, res: Response) {
         const productBody = req.body;
         if(!productBody.name || !productBody.weight || !productBody.price) {
-            res.status(400).json("Please enter all fiels (name, weight, count, price)"); // 400 -> bad request
+            res.status(400).json("Please enter all fiels (name, weight, count, price)").end(); // 400 -> bad request
             return;
         }
         try {
@@ -21,10 +21,10 @@ export class ProductController {
                 });
                 res.json(product);
             }
-            res.status(400).json("createProduct error : Product already exists !"); // erreur des données utilisateurs
+            res.status(400).json("createProduct error : Product already exists !").end(); // erreur des données utilisateurs
             return;
         } catch(err) {
-            res.status(400).json("createProduct error !"); // erreur des données utilisateurs
+            res.status(400).json("createProduct error !").end(); // erreur des données utilisateurs
             return;
         }
     }
@@ -59,9 +59,9 @@ export class ProductController {
         try {
             const success = await ProductService.getInstance().deleteById(req.params.product_id);
             if(success) {
-                res.status(204).json("Product deleted succesfully");
+                res.status(204).json("Product deleted succesfully").end();
             } else {
-                res.status(404).json("Product delete failed");
+                res.status(404).json("Product delete failed").end();
             }
         } catch(err) {
             res.status(400).end();

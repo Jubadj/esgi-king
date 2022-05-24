@@ -7,7 +7,7 @@ export class AdminController {
     async createAdmin(req: Request, res: Response) {
         const adminBody = req.body;
         if(!adminBody.username) {
-            res.status(400).json("Please enter a username in the body");
+            res.status(400).json("Please enter a username in the body").end();
             return;
         }
         try {
@@ -17,7 +17,7 @@ export class AdminController {
             });
             res.json(admin);
         } catch(err) {
-            res.status(400).json("Create Admin error!"); // erreur des données utilisateurs
+            res.status(400).json("Create Admin error!").end(); // erreur des données utilisateurs
             return;
         }
     }
@@ -31,12 +31,12 @@ export class AdminController {
         try {
             const admin = await AdminService.getInstance().getById(req.params.admin_id);
             if(admin === null) {
-                res.status(404).json("User not found!");
+                res.status(404).json("User not found!").end();
                 return;
             }
             res.json(admin);
         } catch(err) {
-            res.status(400).json("getAdmin error!");
+            res.status(400).json("getAdmin error!").end();
             return;
         }
     }
@@ -45,12 +45,12 @@ export class AdminController {
         try {
             const success = await AdminService.getInstance().deleteById(req.params.admin_id);
             if(success) {
-                res.status(204).json("User deleted successfully!");
+                res.status(204).json("User deleted successfully!").end();
             } else {
-                res.status(404).json("User delete failed!");
+                res.status(404).json("User delete failed!").end();
             }
         } catch(err) {
-            res.status(400).json("User delete error!");
+            res.status(400).json("User delete error!").end();
         }
     }
 
@@ -59,12 +59,12 @@ export class AdminController {
             const admin = await AdminService.getInstance()
                 .updateById(req.params.admin_id, req.body);
             if(!admin) {
-                res.status(404).json("UpdateAdmin error: User not found");
+                res.status(404).json("UpdateAdmin error: User not found").end();
                 return;
             }
             res.json(admin);
         } catch (err) {
-            res.status(400).json("updateAdmin error!");
+            res.status(400).json("updateAdmin error!").end();
         }
     }
 

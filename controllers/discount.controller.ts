@@ -7,7 +7,7 @@ export class DiscountController {
     async createDiscount(req: Request, res: Response) {
         const discountBody = req.body;
         if(!discountBody.code || !discountBody.expirationDate ) {
-            res.status(400).json("Please enter the code and expirationDate fields in the body!"); // 400 -> bad request
+            res.status(400).json("Please enter the code and expirationDate fields in the body!").end(); // 400 -> bad request
             return;
         }
         try {
@@ -18,7 +18,7 @@ export class DiscountController {
             });
             res.json(discount);
         } catch(err) {
-            res.status(400).json("createDiscount error : Already exists !");
+            res.status(400).json("createDiscount error : Already exists !").end();
             return;
         }
     }
@@ -32,12 +32,12 @@ export class DiscountController {
         try {
             const discount = await DiscountService.getInstance().getById(req.params.discount_id);
             if(discount === null) {
-                res.status(404).json("discount not found in DB!");
+                res.status(404).json("discount not found in DB!").end();
                 return;
             }
             res.json(discount);
         } catch(err) {
-            res.status(400).json("getDiscount error!");
+            res.status(400).json("getDiscount error!").end();
             return;
         }
     }
@@ -46,12 +46,12 @@ export class DiscountController {
         try {
             const success = await DiscountService.getInstance().deleteById(req.params.discount_id);
             if(success) {
-                res.status(204).json("discount deleted succesfully!");
+                res.status(204).json("discount deleted succesfully!").end();
             } else {
-                res.status(404).json("discount delete failed");
+                res.status(404).json("discount delete failed").end();
             }
         } catch(err) {
-            res.status(400).json("discount delete error");
+            res.status(400).json("discount delete error").end();
         }
     }
 
@@ -60,12 +60,12 @@ export class DiscountController {
             const discount = await DiscountService.getInstance()
                 .updateById(req.params.discount_id, req.body);
             if(!discount) {
-                res.status(404).json("discount not found in DB!");
+                res.status(404).json("discount not found in DB!").end();
                 return;
             }
             res.json(discount);
         } catch (err) {
-            res.status(400).json("discount error");
+            res.status(400).json("discount error").end();
         }
     }
 
